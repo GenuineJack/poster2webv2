@@ -1559,8 +1559,7 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        // Initialize app
-        const sectionIcons = ['📄', '📖', '📚', '🔬', '📊', '💬', '✅', '🔗', '🧠', '💡', '❓', '🔍', '⚙️', '🧬', '🔬', '🌡️'];
+        const sectionIcons = ['📄', '📖', '📚', '🔬', '📊', '💬', '✅', '🔗', '🧠', '💡', '❓', '🔍', '⚙️', '🧬', '🌡️', '💉'];
 
         let currentProject = {
             title: 'My Research Poster',
@@ -1570,7 +1569,6 @@
             pdfFile: null
         };
 
-        // Get DOM elements
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
         const browseBtn = document.getElementById('browseBtn');
@@ -1656,7 +1654,25 @@
             
             setTimeout(() => {
                 resetProjectState();
-                initializeEditorWithBlankTemplate();
+                currentProject.sections = [
+                    {
+                        id: 'header',
+                        icon: '🏥',
+                        name: 'Header',
+                        isHeader: true,
+                        content: [
+                            { type: 'text', value: '<h1>Untitled Poster</h1><p>Authors and Affiliations</p>', allowHtml: false }
+                        ]
+                    },
+                    {
+                        id: 'introduction',
+                        icon: '📖',
+                        name: 'Introduction',
+                        content: [
+                            { type: 'text', value: 'Start typing your introduction here...', allowHtml: false }
+                        ]
+                    }
+                ];
                 showEditor('Untitled Poster');
             }, 500);
         }
@@ -1670,7 +1686,7 @@
             const fileExtension = file.name.split('.').pop().toLowerCase();
 
             if (fileExtension === 'pdf') {
-                currentProject.pdfFile = file; // Store the PDF file for download
+                currentProject.pdfFile = file;
             }
 
             switch (fileExtension) {
@@ -1804,8 +1820,6 @@
                     
                     const newSections = [];
                     
-                    // --- 1. EXTRACT HEADER DATA ---
-                    const headerContentBlocks = [];
                     const logoEl = headerEl.querySelector('.logo');
                     if (logoEl) {
                         currentProject.logoUrl = logoEl.src;
@@ -1817,6 +1831,7 @@
                         document.getElementById('logoPreview').innerHTML = '';
                     }
 
+                    const headerContentBlocks = [];
                     const headerChildren = headerEl.children;
                     let headerTextContent = '';
                     for (let i = 0; i < headerChildren.length; i++) {
@@ -1824,7 +1839,6 @@
                            headerTextContent += headerChildren[i].outerHTML;
                         }
                     }
-
                     headerContentBlocks.push({
                         type: 'text',
                         value: headerTextContent,
@@ -1839,7 +1853,6 @@
                         content: headerContentBlocks
                     });
 
-                    // --- 2. EXTRACT SECTIONS DATA ---
                     const sectionsInHTML = doc.querySelectorAll('.section');
                     sectionsInHTML.forEach(sectionEl => {
                         const sectionId = sectionEl.id;
@@ -1886,7 +1899,6 @@
 
                     currentProject.sections = newSections;
                     
-                    // Restore design settings from the embedded CSS
                     const styleTag = doc.querySelector('style');
                     if (styleTag) {
                         const styleContent = styleTag.textContent;
@@ -1941,11 +1953,11 @@
                     ]
                 },
                 {
-                    id: 'new-section',
-                    icon: '📝',
-                    name: 'New Section',
+                    id: 'introduction',
+                    icon: '📖',
+                    name: 'Introduction',
                     content: [
-                        { type: 'text', value: 'Start typing your content here...', allowHtml: false }
+                        { type: 'text', value: 'Start typing your introduction here...', allowHtml: false }
                     ]
                 }
             ];
@@ -2570,7 +2582,7 @@
                         ${currentProject.sections.filter(s => !s.isHeader).map(section => 
                             `<a href="#${section.id}" style="color: ${primaryColor}; text-decoration: none; font-weight: 500;">${section.icon} ${section.name}</a>`
                         ).join('')}
-                        ${downloadBtnHTML}
+                        <div style="margin-left: auto;">${downloadBtnHTML}</div>
                     </div>
                 </nav>
             ` : layoutStyle === 'menu' ? `
@@ -2820,7 +2832,7 @@
                                         ${currentProject.logoUrl ? `<img src="${currentProject.logoUrl}" class="logo" alt="Logo">` : ''}
                                         ${section.content.map(content => {
                                             if (content.type === 'text') {
-                                                return `<div class="content-block">${content.value}</div>`;
+                                                return content.value;
                                             }
                                             return '';
                                         }).join('')}
@@ -2849,6 +2861,2391 @@
                                 `;
                             }
                         }).join('')}
+                    </div>
+                    ${layoutStyle === 'single' ? `
+                        <div class="pdf-download-container">
+                            <a href="#" class="download-pdf-btn" onclick="event.preventDefault(); window.parent.postMessage({ type: 'downloadPdf' }, '*')">
+                                📄 Download PDF
+                            </a>
+                        </div>
+                    ` : ''}
+                </body>
+                </html>
+            `;
+            
+            preview.srcdoc = previewHtml;
+            
+            preview.onload = function() {
+                if (scrollPos > 0) {
+                    setTimeout(() => {
+                        try {
+                            preview.contentWindow.scrollTo(0, scrollPos);
+                        } catch (e) {
+                        }
+                    }, 100);
+                }
+            };
+        }
+
+        window.addEventListener('message', event => {
+            if (event.data.type === 'downloadPdf') {
+                if (currentProject.pdfFile) {
+                    const url = URL.createObjectURL(currentProject.pdfFile);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = currentProject.pdfFile.name;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                } else {
+                    showToast('No PDF file has been uploaded for download.', 'error');
+                }
+            }
+        });
+
+        function updateColorScheme() {
+            const scheme = document.getElementById('colorScheme').value;
+            const schemes = {
+                clinical: { primary: '#0ea5e9', secondary: '#0284c7' },
+                research: { primary: '#16a34a', secondary: '#15803d' },
+                pharma: { primary: '#9333ea', secondary: '#7c3aed' },
+                modern: { primary: '#14b8a6', secondary: '#0d9488' },
+                academic: { primary: '#dc2626', secondary: '#b91c1c' }
+            };
+            
+            if (schemes[scheme]) {
+                document.getElementById('primaryColor').value = schemes[scheme].primary;
+                document.getElementById('primaryColorHex').value = schemes[scheme].primary;
+                document.getElementById('secondaryColor').value = schemes[scheme].secondary;
+                document.getElementById('secondaryColorHex').value = schemes[scheme].secondary;
+                updatePreview();
+            }
+        }
+
+        function updateTitleSize() {
+            const size = document.getElementById('titleSize').value;
+            document.getElementById('titleSizeValue').textContent = `${size}px`;
+            updatePreview();
+        }
+
+        function updateContentSize() {
+            const size = document.getElementById('contentSize').value;
+            document.getElementById('contentSizeValue').textContent = `${size}px`;
+            updatePreview();
+        }
+
+        function updateLogoSize() {
+            const size = document.getElementById('logoSize').value;
+            document.getElementById('logoSizeValue').textContent = `${size}px`;
+            updatePreview();
+        }
+
+        function showPreviewModal() {
+            const preview = document.getElementById('websitePreview');
+            const fullPreview = document.getElementById('fullPreview');
+            
+            fullPreview.srcdoc = preview.srcdoc;
+            
+            document.getElementById('previewModal').classList.add('active');
+            
+            fullPreview.onload = function() {
+                try {
+                    const scrollPos = preview.contentWindow.pageYOffset || preview.contentWindow.document.documentElement.scrollTop || 0;
+                    if (scrollPos > 0) {
+                        setTimeout(() => {
+                            fullPreview.contentWindow.scrollTo(0, scrollPos);
+                        }, 100);
+                    }
+                } catch (e) {
+                }
+            };
+        }
+
+        function closePreviewModal() {
+            const fullPreview = document.getElementById('fullPreview');
+            const preview = document.getElementById('websitePreview');
+            
+            try {
+                const modalScrollPos = fullPreview.contentWindow.pageYOffset || fullPreview.contentWindow.document.documentElement.scrollTop || 0;
+                if (modalScrollPos > 0) {
+                    setTimeout(() => {
+                        preview.contentWindow.scrollTo(0, modalScrollPos);
+                    }, 100);
+                }
+            } catch (e) {
+            }
+            
+            document.getElementById('previewModal').classList.remove('active');
+        }
+
+        function exportWebsite() {
+            document.getElementById('exportModal').classList.add('active');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.remove('active');
+        }
+
+        function setPreviewDevice(device) {
+            const frame = document.getElementById('previewFrame');
+            frame.className = `preview-frame ${device}`;
+            
+            document.querySelectorAll('.modal-header .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`${device.replace('-h', 'H').replace('-v', 'V')}Btn`).classList.add('active');
+        }
+
+        function downloadWebsite() {
+            const format = document.querySelector('input[name="exportFormat"]:checked').value;
+            showToast(`Generating ${format.toUpperCase()} file`, 'success');
+            
+            let content = '';
+            let filename = '';
+            
+            if (format === 'html') {
+                content = generateHTMLExport();
+                filename = 'poster-website.html';
+            } else if (format === 'react') {
+                content = generateReactExport();
+                filename = 'PosterWebsite.jsx';
+            } else if (format === 'nextjs') {
+                content = generateNextJSExport();
+                filename = 'poster.js';
+            }
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            closeExportModal();
+            setTimeout(() => {
+                showToast('Download complete!', 'success');
+            }, 500);
+        }
+        
+        function generateHTMLExport() {
+            const primaryColor = document.getElementById('primaryColor').value;
+            const secondaryColor = document.getElementById('secondaryColor').value;
+            const layoutStyle = document.getElementById('layoutStyle').value;
+            const titleSize = document.getElementById('titleSize').value;
+            const contentSize = document.getElementById('contentSize').value;
+            const fontStyle = document.getElementById('fontStyle').value;
+            const headerAlignment = document.getElementById('headerAlignment')?.value || 'center';
+            const logoSize = document.getElementById('logoSize')?.value || '120';
+            
+            const fontFamily = fontStyle === 'serif' ? 'Georgia, serif' : 
+                             fontStyle === 'mono' ? 'monospace' : 
+                             '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+
+            const downloadBtnHTML = `
+                <a href="#" class="nav-download-btn" onclick="event.preventDefault(); window.parent.postMessage({ type: 'downloadPdf' }, '*')">
+                    📄 Download PDF
+                </a>
+            `;
+            
+            const navHtml = layoutStyle === 'sections' ? `
+                <nav style="position: sticky; top: 0; background: white; border-bottom: 1px solid #e5e7eb; padding: 16px; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <div style="max-width: 1200px; margin: 0 auto; display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                        ${currentProject.sections.filter(s => !s.isHeader).map(section => 
+                            `<a href="#${section.id}" style="color: ${primaryColor}; text-decoration: none; font-weight: 500;">${section.icon} ${section.name}</a>`
+                        ).join('')}
+                        <div style="margin-left: auto;">${downloadBtnHTML}</div>
+                    </div>
+                </nav>
+            ` : layoutStyle === 'menu' ? `
+                <div id="hamburgerMenu" style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
+                    <button onclick="toggleMenu()" style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <div style="width: 24px; height: 2px; background: ${primaryColor}; margin: 4px 0;"></div>
+                        <div style="width: 24px; height: 2px; background: ${primaryColor}; margin: 4px 0;"></div>
+                        <div style="width: 24px; height: 2px; background: ${primaryColor}; margin: 4px 0;"></div>
+                    </button>
+                    <div id="menuDropdown" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #e5e7eb; border-radius: 12px; margin-top: 8px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); min-width: 200px;">
+                        ${currentProject.sections.filter(s => !s.isHeader).map(section => 
+                            `<a href="#${section.id}" onclick="toggleMenu()" style="display: block; padding: 8px 12px; color: ${primaryColor}; text-decoration: none; font-weight: 500; border-radius: 8px; transition: background 0.2s;" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='transparent'">${section.icon} ${section.name}</a>`
+                        ).join('')}
+                        <hr style="margin: 12px 0; border: none; border-top: 1px solid #e5e7eb;">
+                        <a href="#" class="nav-download-btn" onclick="event.preventDefault(); window.parent.postMessage({ type: 'downloadPdf' }, '*')">📄 Download PDF</a>
+                    </div>
+                </div>
+                <script>
+                    function toggleMenu() {
+                        const dropdown = document.getElementById('menuDropdown');
+                        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+                    }
+                    document.addEventListener('click', function(event) {
+                        const menu = document.getElementById('hamburgerMenu');
+                        if (!menu.contains(event.target)) {
+                            document.getElementById('menuDropdown').style.display = 'none';
+                        }
+                    });
+                </scr"+"ipt>
+            ` : '';
+            
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${currentProject.title}</title>
+    <style>
+        body {
+            font-family: ${fontFamily};
+            margin: 0;
+            padding: 0;
+            background: #f8fafc;
+            font-size: ${contentSize}px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor});
+            color: white;
+            padding: 60px 40px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            text-align: ${headerAlignment};
+            position: relative;
+        }
+        .logo {
+            max-width: ${logoSize}px;
+            max-height: ${logoSize}px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 12px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        h1 { 
+            margin: 0 0 10px 0; 
+            font-size: ${titleSize}px;
+        }
+        .section {
+            background: white;
+            padding: 30px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            scroll-margin-top: ${layoutStyle === 'sections' ? '80px' : '20px'};
+        }
+        .section h2 {
+            color: ${primaryColor};
+            margin-top: 0;
+            font-size: ${Math.round(titleSize * 0.75)}px;
+        }
+        .content-block {
+            margin-bottom: 20px;
+        }
+        .content-block a {
+            color: ${primaryColor};
+            text-decoration: underline;
+        }
+        .content-block a:hover {
+            color: ${secondaryColor};
+        }
+        .image-block {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .image-block img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .image-caption {
+            margin-top: 12px;
+            font-style: italic;
+            color: #666;
+            font-size: ${Math.round(contentSize * 0.9)}px;
+        }
+        .image-caption a {
+            color: ${primaryColor};
+            text-decoration: underline;
+        }
+        .image-caption a:hover {
+            color: ${secondaryColor};
+        }
+        .pdf-download-btn {
+            background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor});
+            color: white;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            display: inline-block;
+            margin: 40px auto 20px;
+        }
+        .pdf-download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .pdf-download-container {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            margin-top: 40px;
+            border-radius: 12px;
+        }
+        nav {
+            position: sticky;
+            top: 0;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 16px;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: 60px; /* Fixed height for navigation */
+        }
+        nav .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: nowrap; /* Prevent wrapping for better layout */
+            height: 100%;
+            overflow-x: auto; /* Allow horizontal scrolling if needed */
+        }
+        nav a {
+            color: ${primaryColor};
+            text-decoration: none;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .nav-download-btn {
+            background: white;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .nav-download-btn:hover {
+            background: #f9fafb;
+            border-color: #6366f1;
+            color: #6366f1;
+            transform: translateY(-1px);
+        }
+        #hamburgerMenu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        #hamburgerMenu button {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .menu-line {
+            width: 24px;
+            height: 2px;
+            background: ${primaryColor};
+            margin: 4px 0;
+        }
+        #menuDropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            margin-top: 8px;
+            padding: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            min-width: 200px;
+        }
+        #menuDropdown a {
+            display: block;
+            padding: 8px 12px;
+            color: ${primaryColor};
+            text-decoration: none;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        #menuDropdown a:hover {
+            background: #f0fdf4;
+        }
+        #menuDropdown hr {
+            margin: 12px 0;
+            border: none;
+            border-top: 1px solid #e5e7eb;
+        }
+        @media print {
+            nav, #hamburgerMenu, .pdf-download-container { display: none; }
+        }
+    </style>
+</head>
+<body>
+    ${navHtml}
+    
+    <div class="container">
+        ${currentProject.sections.map(section => {
+            if (section.isHeader) {
+                return `
+                                    <div class="header" id="${section.id}">
+                                        ${currentProject.logoUrl ? `<img src="${currentProject.logoUrl}" class="logo" alt="Logo">` : ''}
+                                        ${section.content.map(content => {
+                                            if (content.type === 'text') {
+                                                return content.value;
+                                            }
+                                            return '';
+                                        }).join('')}
+                                    </div>
+                                `;
+            } else {
+                return `
+                                    <div class="section" id="${section.id}">
+                                        <h2>${section.icon} ${section.name}</h2>
+                                        ${section.content.map(content => {
+                                            if (content.type === 'text') {
+                                                return `<div class="content-block">${content.value}</div>`;
+                                            } else if (content.type === 'image' && content.url) {
+                                                return `
+                                                    <div class="content-block">
+                                                        <div class="image-block">
+                                                            <img src="${content.url}" alt="${section.name} image">
+                                                            ${content.caption ? `<div class="image-caption">${content.caption}</div>` : ''}
+                                                        </div>
+                                                    </div>
+                                                `;
+                                            }
+                                            return '';
+                                        }).join('')}
+                                    </div>
+                                `;
+            }
+        }).join('')}
+                    </div>
+                    ${layoutStyle === 'single' ? `
+                        <div class="pdf-download-container">
+                            <a href="#" class="download-pdf-btn" onclick="event.preventDefault(); window.parent.postMessage({ type: 'downloadPdf' }, '*')">
+                                📄 Download PDF
+                            </a>
+                        </div>
+                    ` : ''}
+                </body>
+                </html>
+            `;
+            
+            preview.srcdoc = previewHtml;
+            
+            preview.onload = function() {
+                if (scrollPos > 0) {
+                    setTimeout(() => {
+                        try {
+                            preview.contentWindow.scrollTo(0, scrollPos);
+                        } catch (e) {
+                        }
+                    }, 100);
+                }
+            };
+        }
+
+        window.addEventListener('message', event => {
+            if (event.data.type === 'downloadPdf') {
+                if (currentProject.pdfFile) {
+                    const url = URL.createObjectURL(currentProject.pdfFile);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = currentProject.pdfFile.name;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                } else {
+                    showToast('No PDF file has been uploaded for download.', 'error');
+                }
+            }
+        });
+
+        function updateColorScheme() {
+            const scheme = document.getElementById('colorScheme').value;
+            const schemes = {
+                clinical: { primary: '#0ea5e9', secondary: '#0284c7' },
+                research: { primary: '#16a34a', secondary: '#15803d' },
+                pharma: { primary: '#9333ea', secondary: '#7c3aed' },
+                modern: { primary: '#14b8a6', secondary: '#0d9488' },
+                academic: { primary: '#dc2626', secondary: '#b91c1c' }
+            };
+            
+            if (schemes[scheme]) {
+                document.getElementById('primaryColor').value = schemes[scheme].primary;
+                document.getElementById('primaryColorHex').value = schemes[scheme].primary;
+                document.getElementById('secondaryColor').value = schemes[scheme].secondary;
+                document.getElementById('secondaryColorHex').value = schemes[scheme].secondary;
+                updatePreview();
+            }
+        }
+
+        function updateTitleSize() {
+            const size = document.getElementById('titleSize').value;
+            document.getElementById('titleSizeValue').textContent = `${size}px`;
+            updatePreview();
+        }
+
+        function updateContentSize() {
+            const size = document.getElementById('contentSize').value;
+            document.getElementById('contentSizeValue').textContent = `${size}px`;
+            updatePreview();
+        }
+
+        function updateLogoSize() {
+            const size = document.getElementById('logoSize').value;
+            document.getElementById('logoSizeValue').textContent = `${size}px`;
+            updatePreview();
+        }
+
+        function showPreviewModal() {
+            const preview = document.getElementById('websitePreview');
+            const fullPreview = document.getElementById('fullPreview');
+            
+            fullPreview.srcdoc = preview.srcdoc;
+            
+            document.getElementById('previewModal').classList.add('active');
+            
+            fullPreview.onload = function() {
+                try {
+                    const scrollPos = preview.contentWindow.pageYOffset || preview.contentWindow.document.documentElement.scrollTop || 0;
+                    if (scrollPos > 0) {
+                        setTimeout(() => {
+                            fullPreview.contentWindow.scrollTo(0, scrollPos);
+                        }, 100);
+                    }
+                } catch (e) {
+                }
+            };
+        }
+
+        function closePreviewModal() {
+            const fullPreview = document.getElementById('fullPreview');
+            const preview = document.getElementById('websitePreview');
+            
+            try {
+                const modalScrollPos = fullPreview.contentWindow.pageYOffset || fullPreview.contentWindow.document.documentElement.scrollTop || 0;
+                if (modalScrollPos > 0) {
+                    setTimeout(() => {
+                        preview.contentWindow.scrollTo(0, modalScrollPos);
+                    }, 100);
+                }
+            } catch (e) {
+            }
+            
+            document.getElementById('previewModal').classList.remove('active');
+        }
+
+        function exportWebsite() {
+            document.getElementById('exportModal').classList.add('active');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.remove('active');
+        }
+
+        function setPreviewDevice(device) {
+            const frame = document.getElementById('previewFrame');
+            frame.className = `preview-frame ${device}`;
+            
+            document.querySelectorAll('.modal-header .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`${device.replace('-h', 'H').replace('-v', 'V')}Btn`).classList.add('active');
+        }
+
+        function downloadWebsite() {
+            const format = document.querySelector('input[name="exportFormat"]:checked').value;
+            showToast(`Generating ${format.toUpperCase()} file`, 'success');
+            
+            let content = '';
+            let filename = '';
+            
+            if (format === 'html') {
+                content = generateHTMLExport();
+                filename = 'poster-website.html';
+            } else if (format === 'react') {
+                content = generateReactExport();
+                filename = 'PosterWebsite.jsx';
+            } else if (format === 'nextjs') {
+                content = generateNextJSExport();
+                filename = 'poster.js';
+            }
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            closeExportModal();
+            setTimeout(() => {
+                showToast('Download complete!', 'success');
+            }, 500);
+        }
+        
+        function generateHTMLExport() {
+            const primaryColor = document.getElementById('primaryColor').value;
+            const secondaryColor = document.getElementById('secondaryColor').value;
+            const layoutStyle = document.getElementById('layoutStyle').value;
+            const titleSize = document.getElementById('titleSize').value;
+            const contentSize = document.getElementById('contentSize').value;
+            const fontStyle = document.getElementById('fontStyle').value;
+            const headerAlignment = document.getElementById('headerAlignment')?.value || 'center';
+            const logoSize = document.getElementById('logoSize')?.value || '120';
+            
+            const fontFamily = fontStyle === 'serif' ? 'Georgia, serif' : 
+                             fontStyle === 'mono' ? 'monospace' : 
+                             '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+
+            const downloadBtnHTML = `
+                <a href="#" class="nav-download-btn" onclick="event.preventDefault(); window.parent.postMessage({ type: 'downloadPdf' }, '*')">
+                    📄 Download PDF
+                </a>
+            `;
+            
+            const navHtml = layoutStyle === 'sections' ? `
+                <nav style="position: sticky; top: 0; background: white; border-bottom: 1px solid #e5e7eb; padding: 16px; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <div style="max-width: 1200px; margin: 0 auto; display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                        ${currentProject.sections.filter(s => !s.isHeader).map(section => 
+                            `<a href="#${section.id}" style="color: ${primaryColor}; text-decoration: none; font-weight: 500;">${section.icon} ${section.name}</a>`
+                        ).join('')}
+                        <div style="margin-left: auto;">${downloadBtnHTML}</div>
+                    </div>
+                </nav>
+            ` : layoutStyle === 'menu' ? `
+                <div id="hamburgerMenu" style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
+                    <button onclick="toggleMenu()" style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <div style="width: 24px; height: 2px; background: ${primaryColor}; margin: 4px 0;"></div>
+                        <div style="width: 24px; height: 2px; background: ${primaryColor}; margin: 4px 0;"></div>
+                        <div style="width: 24px; height: 2px; background: ${primaryColor}; margin: 4px 0;"></div>
+                    </button>
+                    <div id="menuDropdown" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #e5e7eb; border-radius: 12px; margin-top: 8px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); min-width: 200px;">
+                        ${currentProject.sections.filter(s => !s.isHeader).map(section => 
+                            `<a href="#${section.id}" onclick="toggleMenu()" style="display: block; padding: 8px 12px; color: ${primaryColor}; text-decoration: none; font-weight: 500; border-radius: 8px; transition: background 0.2s;" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='transparent'">${section.icon} ${section.name}</a>`
+                        ).join('')}
+                        <hr style="margin: 12px 0; border: none; border-top: 1px solid #e5e7eb;">
+                        <a href="#" class="nav-download-btn" onclick="event.preventDefault(); window.parent.postMessage({ type: 'downloadPdf' }, '*')">📄 Download PDF</a>
+                    </div>
+                </div>
+                <script>
+                    function toggleMenu() {
+                        const dropdown = document.getElementById('menuDropdown');
+                        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+                    }
+                    document.addEventListener('click', function(event) {
+                        const menu = document.getElementById('hamburgerMenu');
+                        if (!menu.contains(event.target)) {
+                            document.getElementById('menuDropdown').style.display = 'none';
+                        }
+                    });
+                </scr"+"ipt>
+            ` : '';
+            
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${currentProject.title}</title>
+    <style>
+        body {
+            font-family: ${fontFamily};
+            margin: 0;
+            padding: 0;
+            background: #f8fafc;
+            font-size: ${contentSize}px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor});
+            color: white;
+            padding: 60px 40px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            text-align: ${headerAlignment};
+            position: relative;
+        }
+        .logo {
+            max-width: ${logoSize}px;
+            max-height: ${logoSize}px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 12px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        h1 { 
+            margin: 0 0 10px 0; 
+            font-size: ${titleSize}px;
+        }
+        .section {
+            background: white;
+            padding: 30px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            scroll-margin-top: ${layoutStyle === 'sections' ? '80px' : '20px'};
+        }
+        .section h2 {
+            color: ${primaryColor};
+            margin-top: 0;
+            font-size: ${Math.round(titleSize * 0.75)}px;
+        }
+        .content-block {
+            margin-bottom: 20px;
+        }
+        .content-block a {
+            color: ${primaryColor};
+            text-decoration: underline;
+        }
+        .content-block a:hover {
+            color: ${secondaryColor};
+        }
+        .image-block {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .image-block img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .image-caption {
+            margin-top: 12px;
+            font-style: italic;
+            color: #666;
+            font-size: ${Math.round(contentSize * 0.9)}px;
+        }
+        .image-caption a {
+            color: ${primaryColor};
+            text-decoration: underline;
+        }
+        .image-caption a:hover {
+            color: ${secondaryColor};
+        }
+        .pdf-download-btn {
+            background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor});
+            color: white;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            display: inline-block;
+            margin: 40px auto 20px;
+        }
+        .pdf-download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .pdf-download-container {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            margin-top: 40px;
+            border-radius: 12px;
+        }
+        nav {
+            position: sticky;
+            top: 0;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 16px;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        nav .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        nav a {
+            color: ${primaryColor};
+            text-decoration: none;
+            font-weight: 500;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .nav-download-btn {
+            background: white;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .nav-download-btn:hover {
+            background: #f9fafb;
+            border-color: #6366f1;
+            color: #6366f1;
+            transform: translateY(-1px);
+        }
+        #hamburgerMenu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        #hamburgerMenu button {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .menu-line {
+            width: 24px;
+            height: 2px;
+            background: ${primaryColor};
+            margin: 4px 0;
+        }
+        #menuDropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            margin-top: 8px;
+            padding: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            min-width: 200px;
+        }
+        #menuDropdown a {
+            display: block;
+            padding: 8px 12px;
+            color: ${primaryColor};
+            text-decoration: none;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        #menuDropdown a:hover {
+            background: #f0fdf4;
+        }
+        #menuDropdown hr {
+            margin: 12px 0;
+            border: none;
+            border-top: 1px solid #e5e7eb;
+        }
+        @media print {
+            nav, #hamburgerMenu, .pdf-download-container { display: none; }
+        }
+    </style>
+</head>
+<body>
+    ${navHtml}
+    
+    <div class="container">
+        ${currentProject.sections.map(section => {
+            if (section.isHeader) {
+                return `
+                                    <div class="header" id="${section.id}">
+                                        ${currentProject.logoUrl ? `<img src="${currentProject.logoUrl}" class="logo" alt="Logo">` : ''}
+                                        ${section.content.map(content => {
+                                            if (content.type === 'text') {
+                                                return content.value;
+                                            }
+                                            return '';
+                                        }).join('')}
+                                    </div>
+                                `;
+            } else {
+                return `
+                                    <div class="section" id="${section.id}">
+                                        <h2>${section.icon} ${section.name}</h2>
+                                        ${section.content.map(content => {
+                                            if (content.type === 'text') {
+                                                return `<div class="content-block">${content.value}</div>`;
+                                            } else if (content.type === 'image' && content.url) {
+                                                return `
+                                                    <div class="content-block">
+                                                        <div class="image-block">
+                                                            <img src="${content.url}" alt="${section.name} image">
+                                                            ${content.caption ? `<div class="image-caption">${content.caption}</div>` : ''}
+                                                        </div>
+                                                    </div>
+                                                `;
+                                            }
+                                            return '';
+                                        }).join('')}
+                                    </div>
+                                `;
+            }
+        }).join('')}
+                    </div>
+                    ${layoutStyle === 'single' ? `
+                        <div class="pdf-download-container">
+                            <a href="#" class="download-pdf-btn" onclick="event.preventDefault(); window.parent.postMessage({ type: 'downloadPdf' }, '*')">
+                                📄 Download PDF
+                            </a>
+                        </div>
+                    ` : ''}
+                </body>
+                </html>
+            `;
+            
+            preview.srcdoc = previewHtml;
+            
+            preview.onload = function() {
+                if (scrollPos > 0) {
+                    setTimeout(() => {
+                        try {
+                            preview.contentWindow.scrollTo(0, scrollPos);
+                        } catch (e) {
+                        }
+                    }, 100);
+                }
+            };
+        }
+
+        window.addEventListener('message', event => {
+            if (event.data.type === 'downloadPdf') {
+                if (currentProject.pdfFile) {
+                    const url = URL.createObjectURL(currentProject.pdfFile);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = currentProject.pdfFile.name;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                } else {
+                    showToast('No PDF file has been uploaded for download.', 'error');
+                }
+            }
+        });
+
+        function updateColorScheme() {
+            const scheme = document.getElementById('colorScheme').value;
+            const schemes = {
+                clinical: { primary: '#0ea5e9', secondary: '#0284c7' },
+                research: { primary: '#16a34a', secondary: '#15803d' },
+                pharma: { primary: '#9333ea', secondary: '#7c3aed' },
+                modern: { primary: '#14b8a6', secondary: '#0d9488' },
+                academic: { primary: '#dc2626', secondary: '#b91c1c' }
+            };
+            
+            if (schemes[scheme]) {
+                document.getElementById('primaryColor').value = schemes[scheme].primary;
+                document.getElementById('primaryColorHex').value = schemes[scheme].primary;
+                document.getElementById('secondaryColor').value = schemes[scheme].secondary;
+                document.getElementById('secondaryColorHex').value = schemes[scheme].secondary;
+                updatePreview();
+            }
+        }
+
+        function updateTitleSize() {
+            const size = document.getElementById('titleSize').value;
+            document.getElementById('titleSizeValue').textContent = `${size}px`;
+            updatePreview();
+        }
+
+        function updateContentSize() {
+            const size = document.getElementById('contentSize').value;
+            document.getElementById('contentSizeValue').textContent = `${size}px`;
+            updatePreview();
+        }
+
+        function updateLogoSize() {
+            const size = document.getElementById('logoSize').value;
+            document.getElementById('logoSizeValue').textContent = `${size}px`;
+            updatePreview();
+        }
+
+        function showPreviewModal() {
+            const preview = document.getElementById('websitePreview');
+            const fullPreview = document.getElementById('fullPreview');
+            
+            fullPreview.srcdoc = preview.srcdoc;
+            
+            document.getElementById('previewModal').classList.add('active');
+            
+            fullPreview.onload = function() {
+                try {
+                    const scrollPos = preview.contentWindow.pageYOffset || preview.contentWindow.document.documentElement.scrollTop || 0;
+                    if (scrollPos > 0) {
+                        setTimeout(() => {
+                            fullPreview.contentWindow.scrollTo(0, scrollPos);
+                        }, 100);
+                    }
+                } catch (e) {
+                }
+            };
+        }
+
+        function closePreviewModal() {
+            const fullPreview = document.getElementById('fullPreview');
+            const preview = document.getElementById('websitePreview');
+            
+            try {
+                const modalScrollPos = fullPreview.contentWindow.pageYOffset || fullPreview.contentWindow.document.documentElement.scrollTop || 0;
+                if (modalScrollPos > 0) {
+                    setTimeout(() => {
+                        preview.contentWindow.scrollTo(0, modalScrollPos);
+                    }, 100);
+                }
+            } catch (e) {
+            }
+            
+            document.getElementById('previewModal').classList.remove('active');
+        }
+
+        function exportWebsite() {
+            document.getElementById('exportModal').classList.add('active');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.remove('active');
+        }
+
+        function setPreviewDevice(device) {
+            const frame = document.getElementById('previewFrame');
+            frame.className = `preview-frame ${device}`;
+            
+            document.querySelectorAll('.modal-header .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`${device.replace('-h', 'H').replace('-v', 'V')}Btn`).classList.add('active');
+        }
+
+        function downloadWebsite() {
+            const format = document.querySelector('input[name="exportFormat"]:checked').value;
+            showToast(`Generating ${format.toUpperCase()} file`, 'success');
+            
+            let content = '';
+            let filename = '';
+            
+            if (format === 'html') {
+                content = generateHTMLExport();
+                filename = 'poster-website.html';
+            } else if (format === 'react') {
+                content = generateReactExport();
+                filename = 'PosterWebsite.jsx';
+            } else if (format === 'nextjs') {
+                content = generateNextJSExport();
+                filename = 'poster.js';
+            }
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            closeExportModal();
+            setTimeout(() => {
+                showToast('Download complete!', 'success');
+            }, 500);
+        }
+        
+        function generateHTMLExport() {
+            const primaryColor = document.getElementById('primaryColor').value;
+            const secondaryColor = document.getElementById('secondaryColor').value;
+            const layoutStyle = document.getElementById('layoutStyle').value;
+            const titleSize = document.getElementById('titleSize').value;
+            const contentSize = document.getElementById('contentSize').value;
+            const fontStyle = document.getElementById('fontStyle').value;
+            const headerAlignment = document.getElementById('headerAlignment')?.value || 'center';
+            const logoSize = document.getElementById('logoSize')?.value || '120';
+            
+            const fontFamily = fontStyle === 'serif' ? 'Georgia, serif' : 
+                             fontStyle === 'mono' ? 'monospace' : 
+                             '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+
+            const downloadBtnHTML = `
+                <a href="#" class="nav-download-btn" onclick="event.preventDefault(); window.parent.postMessage({ type: 'downloadPdf' }, '*')">
+                    📄 Download PDF
+                </a>
+            `;
+            
+            const navHtml = layoutStyle === 'sections' ? `
+                <nav style="position: sticky; top: 0; background: white; border-bottom: 1px solid #e5e7eb; padding: 16px; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <div style="max-width: 1200px; margin: 0 auto; display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                        ${currentProject.sections.filter(s => !s.isHeader).map(section => 
+                            `<a href="#${section.id}" style="color: ${primaryColor}; text-decoration: none; font-weight: 500;">${section.icon} ${section.name}</a>`
+                        ).join('')}
+                        <div style="margin-left: auto;">${downloadBtnHTML}</div>
+                    </div>
+                </nav>
+            ` : layoutStyle === 'menu' ? `
+                <div id="hamburgerMenu" style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
+                    <button onclick="toggleMenu()" style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <div style="width: 24px; height: 2px; background: ${primaryColor}; margin: 4px 0;"></div>
+                        <div style="width: 24px; height: 2px; background: ${primaryColor}; margin: 4px 0;"></div>
+                        <div style="width: 24px; height: 2px; background: ${primaryColor}; margin: 4px 0;"></div>
+                    </button>
+                    <div id="menuDropdown" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #e5e7eb; border-radius: 12px; margin-top: 8px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); min-width: 200px;">
+                        ${currentProject.sections.filter(s => !s.isHeader).map(section => 
+                            `<a href="#${section.id}" onclick="toggleMenu()" style="display: block; padding: 8px 12px; color: ${primaryColor}; text-decoration: none; font-weight: 500; border-radius: 8px; transition: background 0.2s;" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='transparent'">${section.icon} ${section.name}</a>`
+                        ).join('')}
+                        <hr style="margin: 12px 0; border: none; border-top: 1px solid #e5e7eb;">
+                        <a href="#" class="nav-download-btn" onclick="event.preventDefault(); window.parent.postMessage({ type: 'downloadPdf' }, '*')">📄 Download PDF</a>
+                    </div>
+                </div>
+                <script>
+                    function toggleMenu() {
+                        const dropdown = document.getElementById('menuDropdown');
+                        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+                    }
+                    document.addEventListener('click', function(event) {
+                        const menu = document.getElementById('hamburgerMenu');
+                        if (!menu.contains(event.target)) {
+                            document.getElementById('menuDropdown').style.display = 'none';
+                        }
+                    });
+                </scr"+"ipt>
+            ` : '';
+            
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${currentProject.title}</title>
+    <style>
+        body {
+            font-family: ${fontFamily};
+            margin: 0;
+            padding: 0;
+            background: #f8fafc;
+            font-size: ${contentSize}px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor});
+            color: white;
+            padding: 60px 40px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            text-align: ${headerAlignment};
+            position: relative;
+        }
+        .logo {
+            max-width: ${logoSize}px;
+            max-height: ${logoSize}px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 12px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        h1 { 
+            margin: 0 0 10px 0; 
+            font-size: ${titleSize}px;
+        }
+        .section {
+            background: white;
+            padding: 30px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            scroll-margin-top: ${layoutStyle === 'sections' ? '80px' : '20px'};
+        }
+        .section h2 {
+            color: ${primaryColor};
+            margin-top: 0;
+            font-size: ${Math.round(titleSize * 0.75)}px;
+        }
+        .content-block {
+            margin-bottom: 20px;
+        }
+        .content-block a {
+            color: ${primaryColor};
+            text-decoration: underline;
+        }
+        .content-block a:hover {
+            color: ${secondaryColor};
+        }
+        .image-block {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .image-block img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .image-caption {
+            margin-top: 12px;
+            font-style: italic;
+            color: #666;
+            font-size: ${Math.round(contentSize * 0.9)}px;
+        }
+        .image-caption a {
+            color: ${primaryColor};
+            text-decoration: underline;
+        }
+        .image-caption a:hover {
+            color: ${secondaryColor};
+        }
+        .pdf-download-btn {
+            background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor});
+            color: white;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            display: inline-block;
+            margin: 40px auto 20px;
+        }
+        .pdf-download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .pdf-download-container {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            margin-top: 40px;
+            border-radius: 12px;
+        }
+        nav {
+            position: sticky;
+            top: 0;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 16px;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        nav .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        nav a {
+            color: ${primaryColor};
+            text-decoration: none;
+            font-weight: 500;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .nav-download-btn {
+            background: white;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .nav-download-btn:hover {
+            background: #f9fafb;
+            border-color: #6366f1;
+            color: #6366f1;
+            transform: translateY(-1px);
+        }
+        #hamburgerMenu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        #hamburgerMenu button {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .menu-line {
+            width: 24px;
+            height: 2px;
+            background: ${primaryColor};
+            margin: 4px 0;
+        }
+        #menuDropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            margin-top: 8px;
+            padding: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            min-width: 200px;
+        }
+        #menuDropdown a {
+            display: block;
+            padding: 8px 12px;
+            color: ${primaryColor};
+            text-decoration: none;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        #menuDropdown a:hover {
+            background: #f0fdf4;
+        }
+        #menuDropdown hr {
+            margin: 12px 0;
+            border: none;
+            border-top: 1px solid #e5e7eb;
+        }
+        @media print {
+            nav, #hamburgerMenu, .pdf-download-container { display: none; }
+        }
+    </style>
+</head>
+<body>
+    ${navHtml}
+    
+    <div class="container">
+        ${currentProject.sections.map(section => {
+            if (section.isHeader) {
+                return `
+                                    <div class="header" id="${section.id}">
+                                        ${currentProject.logoUrl ? `<img src="${currentProject.logoUrl}" class="logo" alt="Logo">` : ''}
+                                        ${section.content.map(content => {
+                                            if (content.type === 'text') {
+                                                return content.value;
+                                            }
+                                            return '';
+                                        }).join('')}
+                                    </div>
+                                `;
+            } else {
+                return `
+                                    <div class="section" id="${section.id}">
+                                        <h2>${section.icon} ${section.name}</h2>
+                                        ${section.content.map(content => {
+                                            if (content.type === 'text') {
+                                                return `<div class="content-block">${content.value}</div>`;
+                                            } else if (content.type === 'image' && content.url) {
+                                                return `
+                                                    <div class="content-block">
+                                                        <div class="image-block">
+                                                            <img src="${content.url}" alt="${section.name} image">
+                                                            ${content.caption ? `<div class="image-caption">${content.caption}</div>` : ''}
+                                                        </div>
+                                                    </div>
+                                                `;
+                                            }
+                                            return '';
+                                        }).join('')}
+                                    </div>
+                                `;
+            }
+        }).join('')}
+                    </div>
+                    ${layoutStyle === 'single' ? `
+                        <div class="pdf-download-container">
+                            <a href="#" class="download-pdf-btn" onclick="event.preventDefault(); window.parent.postMessage({ type: 'downloadPdf' }, '*')">
+                                📄 Download PDF
+                            </a>
+                        </div>
+                    ` : ''}
+                </body>
+                </html>
+            `;
+            
+            preview.srcdoc = previewHtml;
+            
+            preview.onload = function() {
+                if (scrollPos > 0) {
+                    setTimeout(() => {
+                        try {
+                            preview.contentWindow.scrollTo(0, scrollPos);
+                        } catch (e) {
+                        }
+                    }, 100);
+                }
+            };
+        }
+
+        window.addEventListener('message', event => {
+            if (event.data.type === 'downloadPdf') {
+                if (currentProject.pdfFile) {
+                    const url = URL.createObjectURL(currentProject.pdfFile);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = currentProject.pdfFile.name;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                } else {
+                    showToast('No PDF file has been uploaded for download.', 'error');
+                }
+            }
+        });
+
+        function updateColorScheme() {
+            const scheme = document.getElementById('colorScheme').value;
+            const schemes = {
+                clinical: { primary: '#0ea5e9', secondary: '#0284c7' },
+                research: { primary: '#16a34a', secondary: '#15803d' },
+                pharma: { primary: '#9333ea', secondary: '#7c3aed' },
+                modern: { primary: '#14b8a6', secondary: '#0d9488' },
+                academic: { primary: '#dc2626', secondary: '#b91c1c' }
+            };
+            
+            if (schemes[scheme]) {
+                document.getElementById('primaryColor').value = schemes[scheme].primary;
+                document.getElementById('primaryColorHex').value = schemes[scheme].primary;
+                document.getElementById('secondaryColor').value = schemes[scheme].secondary;
+                document.getElementById('secondaryColorHex').value = schemes[scheme].secondary;
+                updatePreview();
+            }
+        }
+
+        function updateTitleSize() {
+            const size = document.getElementById('titleSize').value;
+            document.getElementById('titleSizeValue').textContent = `${size}px`;
+            updatePreview();
+        }
+
+        function updateContentSize() {
+            const size = document.getElementById('contentSize').value;
+            document.getElementById('contentSizeValue').textContent = `${size}px`;
+            updatePreview();
+        }
+
+        function updateLogoSize() {
+            const size = document.getElementById('logoSize').value;
+            document.getElementById('logoSizeValue').textContent = `${size}px`;
+            updatePreview();
+        }
+
+        function showPreviewModal() {
+            const preview = document.getElementById('websitePreview');
+            const fullPreview = document.getElementById('fullPreview');
+            
+            fullPreview.srcdoc = preview.srcdoc;
+            
+            document.getElementById('previewModal').classList.add('active');
+            
+            fullPreview.onload = function() {
+                try {
+                    const scrollPos = preview.contentWindow.pageYOffset || preview.contentWindow.document.documentElement.scrollTop || 0;
+                    if (scrollPos > 0) {
+                        setTimeout(() => {
+                            fullPreview.contentWindow.scrollTo(0, scrollPos);
+                        }, 100);
+                    }
+                } catch (e) {
+                }
+            };
+        }
+
+        function closePreviewModal() {
+            const fullPreview = document.getElementById('fullPreview');
+            const preview = document.getElementById('websitePreview');
+            
+            try {
+                const modalScrollPos = fullPreview.contentWindow.pageYOffset || fullPreview.contentWindow.document.documentElement.scrollTop || 0;
+                if (modalScrollPos > 0) {
+                    setTimeout(() => {
+                        preview.contentWindow.scrollTo(0, modalScrollPos);
+                    }, 100);
+                }
+            } catch (e) {
+            }
+            
+            document.getElementById('previewModal').classList.remove('active');
+        }
+
+        function exportWebsite() {
+            document.getElementById('exportModal').classList.add('active');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.remove('active');
+        }
+
+        function setPreviewDevice(device) {
+            const frame = document.getElementById('previewFrame');
+            frame.className = `preview-frame ${device}`;
+            
+            document.querySelectorAll('.modal-header .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`${device.replace('-h', 'H').replace('-v', 'V')}Btn`).classList.add('active');
+        }
+
+        function downloadWebsite() {
+            const format = document.querySelector('input[name="exportFormat"]:checked').value;
+            showToast(`Generating ${format.toUpperCase()} file`, 'success');
+            
+            let content = '';
+            let filename = '';
+            
+            if (format === 'html') {
+                content = generateHTMLExport();
+                filename = 'poster-website.html';
+            } else if (format === 'react') {
+                content = generateReactExport();
+                filename = 'PosterWebsite.jsx';
+            } else if (format === 'nextjs') {
+                content = generateNextJSExport();
+                filename = 'poster.js';
+            }
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            closeExportModal();
+            setTimeout(() => {
+                showToast('Download complete!', 'success');
+            }, 500);
+        }
+        
+        function generateHTMLExport() {
+            const primaryColor = document.getElementById('primaryColor').value;
+            const secondaryColor = document.getElementById('secondaryColor').value;
+            const layoutStyle = document.getElementById('layoutStyle').value;
+            const titleSize = document.getElementById('titleSize').value;
+            const contentSize = document.getElementById('contentSize').value;
+            const fontStyle = document.getElementById('fontStyle').value;
+            const headerAlignment = document.getElementById('headerAlignment')?.value || 'center';
+            const logoSize = document.getElementById('logoSize')?.value || '120';
+            
+            const fontFamily = fontStyle === 'serif' ? 'Georgia, serif' : 
+                             fontStyle === 'mono' ? 'monospace' : 
+                             '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+            
+            const navHtml = layoutStyle === 'sections' ? `
+                <nav style="position: sticky; top: 0; background: white; border-bottom: 1px solid #e5e7eb; padding: 16px; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <div style="max-width: 1200px; margin: 0 auto; display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                        ${currentProject.sections.filter(s => !s.isHeader).map(section => 
+                            `<a href="#${section.id}" style="color: ${primaryColor}; text-decoration: none; font-weight: 500;">${section.icon} ${section.name}</a>`
+                        ).join('')}
+                        <div style="margin-left: auto;">
+                           <a href="#" class="nav-download-btn" onclick="event.preventDefault(); window.print()">📄 Download PDF</a>
+                        </div>
+                    </div>
+                </nav>
+            ` : layoutStyle === 'menu' ? `
+                <div id="hamburgerMenu" style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
+                    <button onclick="toggleMenu()" style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <div style="width: 24px; height: 2px; background: ${primaryColor}; margin: 4px 0;"></div>
+                        <div style="width: 24px; height: 2px; background: ${primaryColor}; margin: 4px 0;"></div>
+                        <div style="width: 24px; height: 2px; background: ${primaryColor}; margin: 4px 0;"></div>
+                    </button>
+                    <div id="menuDropdown" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #e5e7eb; border-radius: 12px; margin-top: 8px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); min-width: 200px;">
+                        ${currentProject.sections.filter(s => !s.isHeader).map(section => 
+                            `<a href="#${section.id}" onclick="toggleMenu()" style="display: block; padding: 8px 12px; color: ${primaryColor}; text-decoration: none; font-weight: 500; border-radius: 8px; transition: background 0.2s;" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='transparent'">${section.icon} ${section.name}</a>`
+                        ).join('')}
+                        <hr style="margin: 12px 0; border: none; border-top: 1px solid #e5e7eb;">
+                        <a href="#" class="nav-download-btn" onclick="event.preventDefault(); window.print()">📄 Download PDF</a>
+                    </div>
+                </div>
+                <script>
+                    function toggleMenu() {
+                        const dropdown = document.getElementById('menuDropdown');
+                        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+                    }
+                    document.addEventListener('click', function(event) {
+                        const menu = document.getElementById('hamburgerMenu');
+                        if (!menu.contains(event.target)) {
+                            document.getElementById('menuDropdown').style.display = 'none';
+                        }
+                    });
+                </scr"+"ipt>
+            ` : '';
+            
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${currentProject.title}</title>
+    <style>
+        body {
+            font-family: ${fontFamily};
+            margin: 0;
+            padding: 0;
+            background: #f8fafc;
+            font-size: ${contentSize}px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor});
+            color: white;
+            padding: 60px 40px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            text-align: ${headerAlignment};
+            position: relative;
+        }
+        .logo {
+            max-width: ${logoSize}px;
+            max-height: ${logoSize}px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 12px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        h1 { 
+            margin: 0 0 10px 0; 
+            font-size: ${titleSize}px;
+        }
+        .section {
+            background: white;
+            padding: 30px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            scroll-margin-top: ${layoutStyle === 'sections' ? '80px' : '20px'};
+        }
+        .section h2 {
+            color: ${primaryColor};
+            margin-top: 0;
+            font-size: ${Math.round(titleSize * 0.75)}px;
+        }
+        .content-block {
+            margin-bottom: 20px;
+        }
+        .content-block a {
+            color: ${primaryColor};
+            text-decoration: underline;
+        }
+        .content-block a:hover {
+            color: ${secondaryColor};
+        }
+        .image-block {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .image-block img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .image-caption {
+            margin-top: 12px;
+            font-style: italic;
+            color: #666;
+            font-size: ${Math.round(contentSize * 0.9)}px;
+        }
+        .image-caption a {
+            color: ${primaryColor};
+            text-decoration: underline;
+        }
+        .image-caption a:hover {
+            color: ${secondaryColor};
+        }
+        .pdf-download-btn {
+            background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor});
+            color: white;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            display: inline-block;
+            margin: 40px auto 20px;
+        }
+        .pdf-download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .pdf-download-container {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            margin-top: 40px;
+            border-radius: 12px;
+        }
+        nav {
+            position: sticky;
+            top: 0;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 16px;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        nav .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        nav a {
+            color: ${primaryColor};
+            text-decoration: none;
+            font-weight: 500;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .nav-download-btn {
+            background: white;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .nav-download-btn:hover {
+            background: #f9fafb;
+            border-color: #6366f1;
+            color: #6366f1;
+            transform: translateY(-1px);
+        }
+        #hamburgerMenu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        #hamburgerMenu button {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .menu-line {
+            width: 24px;
+            height: 2px;
+            background: ${primaryColor};
+            margin: 4px 0;
+        }
+        #menuDropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            margin-top: 8px;
+            padding: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            min-width: 200px;
+        }
+        #menuDropdown a {
+            display: block;
+            padding: 8px 12px;
+            color: ${primaryColor};
+            text-decoration: none;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        #menuDropdown a:hover {
+            background: #f0fdf4;
+        }
+        #menuDropdown hr {
+            margin: 12px 0;
+            border: none;
+            border-top: 1px solid #e5e7eb;
+        }
+        @media print {
+            nav, #hamburgerMenu, .pdf-download-container { display: none; }
+        }
+    </style>
+</head>
+<body>
+    ${navHtml}
+    
+    <div class="container">
+        ${currentProject.sections.map(section => {
+            if (section.isHeader) {
+                return `
+                                    <div class="header" id="${section.id}">
+                                        ${currentProject.logoUrl ? `<img src="${currentProject.logoUrl}" class="logo" alt="Logo">` : ''}
+                                        ${section.content.map(content => {
+                                            if (content.type === 'text') {
+                                                return content.value;
+                                            }
+                                            return '';
+                                        }).join('')}
+                                    </div>
+                                `;
+            } else {
+                return `
+                                    <div class="section" id="${section.id}">
+                                        <h2>${section.icon} ${section.name}</h2>
+                                        ${section.content.map(content => {
+                                            if (content.type === 'text') {
+                                                return `<div class="content-block">${content.value}</div>`;
+                                            } else if (content.type === 'image' && content.url) {
+                                                return `
+                                                    <div class="content-block">
+                                                        <div class="image-block">
+                                                            <img src="${content.url}" alt="${section.name} image">
+                                                            ${content.caption ? `<div class="image-caption">${content.caption}</div>` : ''}
+                                                        </div>
+                                                    </div>
+                                                `;
+                                            }
+                                            return '';
+                                        }).join('')}
+                                    </div>
+                                `;
+            }
+        }).join('')}
+                    </div>
+                    ${layoutStyle === 'single' ? `
+                        <div class="pdf-download-container">
+                            <a href="#" class="download-pdf-btn" onclick="event.preventDefault(); window.parent.postMessage({ type: 'downloadPdf' }, '*')">
+                                📄 Download PDF
+                            </a>
+                        </div>
+                    ` : ''}
+                </body>
+                </html>
+            `;
+            
+            preview.srcdoc = previewHtml;
+            
+            preview.onload = function() {
+                if (scrollPos > 0) {
+                    setTimeout(() => {
+                        try {
+                            preview.contentWindow.scrollTo(0, scrollPos);
+                        } catch (e) {
+                        }
+                    }, 100);
+                }
+            };
+        }
+
+        window.addEventListener('message', event => {
+            if (event.data.type === 'downloadPdf') {
+                if (currentProject.pdfFile) {
+                    const url = URL.createObjectURL(currentProject.pdfFile);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = currentProject.pdfFile.name;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                } else {
+                    showToast('No PDF file has been uploaded for download.', 'error');
+                }
+            }
+        });
+
+        function updateColorScheme() {
+            const scheme = document.getElementById('colorScheme').value;
+            const schemes = {
+                clinical: { primary: '#0ea5e9', secondary: '#0284c7' },
+                research: { primary: '#16a34a', secondary: '#15803d' },
+                pharma: { primary: '#9333ea', secondary: '#7c3aed' },
+                modern: { primary: '#14b8a6', secondary: '#0d9488' },
+                academic: { primary: '#dc2626', secondary: '#b91c1c' }
+            };
+            
+            if (schemes[scheme]) {
+                document.getElementById('primaryColor').value = schemes[scheme].primary;
+                document.getElementById('primaryColorHex').value = schemes[scheme].primary;
+                document.getElementById('secondaryColor').value = schemes[scheme].secondary;
+                document.getElementById('secondaryColorHex').value = schemes[scheme].secondary;
+                updatePreview();
+            }
+        }
+
+        function updateTitleSize() {
+            const size = document.getElementById('titleSize').value;
+            document.getElementById('titleSizeValue').textContent = `${size}px`;
+            updatePreview();
+        }
+
+        function updateContentSize() {
+            const size = document.getElementById('contentSize').value;
+            document.getElementById('contentSizeValue').textContent = `${size}px`;
+            updatePreview();
+        }
+
+        function updateLogoSize() {
+            const size = document.getElementById('logoSize').value;
+            document.getElementById('logoSizeValue').textContent = `${size}px`;
+            updatePreview();
+        }
+
+        function showPreviewModal() {
+            const preview = document.getElementById('websitePreview');
+            const fullPreview = document.getElementById('fullPreview');
+            
+            fullPreview.srcdoc = preview.srcdoc;
+            
+            document.getElementById('previewModal').classList.add('active');
+            
+            fullPreview.onload = function() {
+                try {
+                    const scrollPos = preview.contentWindow.pageYOffset || preview.contentWindow.document.documentElement.scrollTop || 0;
+                    if (scrollPos > 0) {
+                        setTimeout(() => {
+                            fullPreview.contentWindow.scrollTo(0, scrollPos);
+                        }, 100);
+                    }
+                } catch (e) {
+                }
+            };
+        }
+
+        function closePreviewModal() {
+            const fullPreview = document.getElementById('fullPreview');
+            const preview = document.getElementById('websitePreview');
+            
+            try {
+                const modalScrollPos = fullPreview.contentWindow.pageYOffset || fullPreview.contentWindow.document.documentElement.scrollTop || 0;
+                if (modalScrollPos > 0) {
+                    setTimeout(() => {
+                        preview.contentWindow.scrollTo(0, modalScrollPos);
+                    }, 100);
+                }
+            } catch (e) {
+            }
+            
+            document.getElementById('previewModal').classList.remove('active');
+        }
+
+        function exportWebsite() {
+            document.getElementById('exportModal').classList.add('active');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.remove('active');
+        }
+
+        function setPreviewDevice(device) {
+            const frame = document.getElementById('previewFrame');
+            frame.className = `preview-frame ${device}`;
+            
+            document.querySelectorAll('.modal-header .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`${device.replace('-h', 'H').replace('-v', 'V')}Btn`).classList.add('active');
+        }
+
+        function downloadWebsite() {
+            const format = document.querySelector('input[name="exportFormat"]:checked').value;
+            showToast(`Generating ${format.toUpperCase()} file`, 'success');
+            
+            let content = '';
+            let filename = '';
+            
+            if (format === 'html') {
+                content = generateHTMLExport();
+                filename = 'poster-website.html';
+            } else if (format === 'react') {
+                content = generateReactExport();
+                filename = 'PosterWebsite.jsx';
+            } else if (format === 'nextjs') {
+                content = generateNextJSExport();
+                filename = 'poster.js';
+            }
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            closeExportModal();
+            setTimeout(() => {
+                showToast('Download complete!', 'success');
+            }, 500);
+        }
+        
+        function generateHTMLExport() {
+            const primaryColor = document.getElementById('primaryColor').value;
+            const secondaryColor = document.getElementById('secondaryColor').value;
+            const layoutStyle = document.getElementById('layoutStyle').value;
+            const titleSize = document.getElementById('titleSize').value;
+            const contentSize = document.getElementById('contentSize').value;
+            const fontStyle = document.getElementById('fontStyle').value;
+            const headerAlignment = document.getElementById('headerAlignment')?.value || 'center';
+            const logoSize = document.getElementById('logoSize')?.value || '120';
+            
+            const fontFamily = fontStyle === 'serif' ? 'Georgia, serif' : 
+                             fontStyle === 'mono' ? 'monospace' : 
+                             '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+            
+            const navHtml = layoutStyle === 'sections' ? `
+    <nav style="position: sticky; top: 0; background: white; border-bottom: 1px solid #e5e7eb; padding: 16px; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div class="nav-container">
+            ${currentProject.sections.filter(s => !s.isHeader).map(section => 
+                `<a href="#${section.id}" style="color: ${primaryColor}; text-decoration: none; font-weight: 500;">${section.icon} ${section.name}</a>`
+            ).join('')}
+            <div style="margin-left: auto;">
+               <a href="#" class="nav-download-btn" onclick="event.preventDefault(); window.print()">📄 Download PDF</a>
+            </div>
+        </div>
+    </nav>` : layoutStyle === 'menu' ? `
+    <div id="hamburgerMenu" style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
+        <button onclick="toggleMenu()" style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="width: 24px; height: 2px; background: ${primaryColor}; margin: 4px 0;"></div>
+            <div style="width: 24px; height: 2px; background: ${primaryColor}; margin: 4px 0;"></div>
+            <div style="width: 24px; height: 2px; background: ${primaryColor}; margin: 4px 0;"></div>
+        </button>
+        <div id="menuDropdown" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #e5e7eb; border-radius: 12px; margin-top: 8px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); min-width: 200px;">
+            ${currentProject.sections.filter(s => !s.isHeader).map(section => 
+                `<a href="#${section.id}" onclick="toggleMenu()" style="display: block; padding: 8px 12px; color: ${primaryColor}; text-decoration: none; font-weight: 500; border-radius: 8px; transition: background 0.2s;" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='transparent'">${section.icon} ${section.name}</a>`
+            ).join('')}
+            <hr style="margin: 12px 0; border: none; border-top: 1px solid #e5e7eb;">
+            <a href="#" class="nav-download-btn" onclick="event.preventDefault(); window.print()">📄 Download PDF</a>
+        </div>
+    </div>
+    <script>
+        function toggleMenu() {
+            const dropdown = document.getElementById('menuDropdown');
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        }
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('hamburgerMenu');
+            if (!menu.contains(event.target)) {
+                document.getElementById('menuDropdown').style.display = 'none';
+            }
+        });
+    <\/script>` : '';
+            
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${currentProject.title}</title>
+    <style>
+        body {
+            font-family: ${fontFamily};
+            margin: 0;
+            padding: 0;
+            background: #f8fafc;
+            font-size: ${contentSize}px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor});
+            color: white;
+            padding: 60px 40px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            text-align: ${headerAlignment};
+            position: relative;
+        }
+        .logo {
+            max-width: ${logoSize}px;
+            max-height: ${logoSize}px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 12px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        h1 { 
+            margin: 0 0 10px 0; 
+            font-size: ${titleSize}px;
+        }
+        .section {
+            background: white;
+            padding: 30px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            scroll-margin-top: ${layoutStyle === 'sections' ? '80px' : '20px'};
+        }
+        .section h2 {
+            color: ${primaryColor};
+            margin-top: 0;
+            font-size: ${Math.round(titleSize * 0.75)}px;
+        }
+        .content-block {
+            margin-bottom: 20px;
+        }
+        .content-block a {
+            color: ${primaryColor};
+            text-decoration: underline;
+        }
+        .content-block a:hover {
+            color: ${secondaryColor};
+        }
+        .image-block {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .image-block img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .image-caption {
+            margin-top: 12px;
+            font-style: italic;
+            color: #666;
+            font-size: ${Math.round(contentSize * 0.9)}px;
+        }
+        .image-caption a {
+            color: ${primaryColor};
+            text-decoration: underline;
+        }
+        .image-caption a:hover {
+            color: ${secondaryColor};
+        }
+        .pdf-download-btn {
+            background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor});
+            color: white;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            display: inline-block;
+            margin: 40px auto 20px;
+        }
+        .pdf-download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .pdf-download-container {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            margin-top: 40px;
+            border-radius: 12px;
+        }
+        nav {
+            position: sticky;
+            top: 0;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 16px;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        nav .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        nav a {
+            color: ${primaryColor};
+            text-decoration: none;
+            font-weight: 500;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .nav-download-btn {
+            background: white;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .nav-download-btn:hover {
+            background: #f9fafb;
+            border-color: #6366f1;
+            color: #6366f1;
+            transform: translateY(-1px);
+        }
+        #hamburgerMenu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        #hamburgerMenu button {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .menu-line {
+            width: 24px;
+            height: 2px;
+            background: ${primaryColor};
+            margin: 4px 0;
+        }
+        #menuDropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            margin-top: 8px;
+            padding: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            min-width: 200px;
+        }
+        #menuDropdown a {
+            display: block;
+            padding: 8px 12px;
+            color: ${primaryColor};
+            text-decoration: none;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        #menuDropdown a:hover {
+            background: #f0fdf4;
+        }
+        #menuDropdown hr {
+            margin: 12px 0;
+            border: none;
+            border-top: 1px solid #e5e7eb;
+        }
+        @media print {
+            nav, #hamburgerMenu, .pdf-download-container { display: none; }
+        }
+    </style>
+</head>
+<body>
+    ${navHtml}
+    
+    <div class="container">
+        ${currentProject.sections.map(section => {
+            if (section.isHeader) {
+                return `
+                                    <div class="header" id="${section.id}">
+                                        ${currentProject.logoUrl ? `<img src="${currentProject.logoUrl}" class="logo" alt="Logo">` : ''}
+                                        ${section.content.map(content => {
+                                            if (content.type === 'text') {
+                                                return content.value;
+                                            }
+                                            return '';
+                                        }).join('')}
+                                    </div>
+                                `;
+            } else {
+                return `
+                                    <div class="section" id="${section.id}">
+                                        <h2>${section.icon} ${section.name}</h2>
+                                        ${section.content.map(content => {
+                                            if (content.type === 'text') {
+                                                return `<div class="content-block">${content.value}</div>`;
+                                            } else if (content.type === 'image' && content.url) {
+                                                return `
+                                                    <div class="content-block">
+                                                        <div class="image-block">
+                                                            <img src="${content.url}" alt="${section.name} image">
+                                                            ${content.caption ? `<div class="image-caption">${content.caption}</div>` : ''}
+                                                        </div>
+                                                    </div>
+                                                `;
+                                            }
+                                            return '';
+                                        }).join('')}
+                                    </div>
+                                `;
+            }
+        }).join('')}
                     </div>
                     ${layoutStyle === 'single' ? `
                         <div class="pdf-download-container">
