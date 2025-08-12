@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medical Poster Converter</title>
+    <title>Medical Poster Converter - Transform Research into Beautiful Websites</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22><text y=%221em%22 font-size=%2216%22>🖥️</text></svg>">
     
     <!-- External Dependencies -->
@@ -34,6 +34,10 @@
             overflow-x: hidden;
         }
 
+        .main-content {
+            flex: 1;
+        }
+
         /* Screen Management */
         .screen {
             display: none;
@@ -50,6 +54,40 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Header Icons */
+        .header-icons {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .icon-button {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 20px;
+            color: #6b7280;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .icon-button:hover {
+            background: #f0fdf4;
+            border-color: #16a34a;
+            color: #16a34a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
         /* Upload Screen */
         .upload-container {
             max-width: 600px;
@@ -64,6 +102,12 @@
             padding: 60px 40px;
             cursor: pointer;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             text-align: center;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
@@ -79,6 +123,73 @@
             background: #f0f9ff;
         }
 
+        .upload-icon {
+            display: flex;
+            justify-content: center;
+            animation: pulse 2s ease-in-out infinite;
+            margin-bottom: 24px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .upload-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .upload-subtitle {
+            font-size: 16px;
+            color: #6b7280;
+            margin-bottom: 24px;
+        }
+
+        .browse-button {
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            color: white;
+            padding: 12px 32px;
+            border-radius: 30px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(22, 163, 74, 0.3);
+        }
+
+        .browse-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(22, 163, 74, 0.4);
+        }
+
+        .upload-formats {
+            font-size: 14px;
+            color: #9ca3af;
+            margin-top: 20px;
+        }
+        
+        .create-from-scratch {
+            display: inline-block;
+            margin-top: 20px;
+            background: #f1f5f9;
+            color: #64748b;
+            padding: 12px 32px;
+            border-radius: 30px;
+            font-weight: 600;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .create-from-scratch:hover {
+            background: #e2e8f0;
+            transform: translateY(-1px);
+        }
+
         /* Loading Screen */
         .loading-screen {
             background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
@@ -89,6 +200,12 @@
         
         .loading-screen.active {
             display: flex;
+        }
+
+        .loading-container {
+            text-align: center;
+            color: white;
+            padding: 20px;
         }
 
         .loading-spinner {
@@ -106,6 +223,17 @@
             100% { transform: rotate(360deg); }
         }
 
+        .loading-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .loading-message {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
         /* Editor Screen */
         .editor-header {
             background: white;
@@ -117,26 +245,50 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
-        .editor-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            background: white;
-            min-height: 600px;
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            color: #16a34a;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
         }
 
-        .form-section {
-            padding: 32px;
-            border-right: 1px solid #f3f4f6;
-            overflow-y: auto;
-            max-height: 80vh;
+        .back-button:hover {
+            background: #dcfce7;
+            transform: translateY(-1px);
         }
 
-        .preview-section {
-            padding: 32px;
-            background: #fafafa;
+        .editor-title {
+            text-align: center;
+            flex: 1;
         }
 
-        /* Buttons */
+        .editor-title h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .pdf-name {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .editor-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* Button Styles */
         .btn {
             padding: 10px 20px;
             border-radius: 12px;
@@ -175,7 +327,44 @@
             transform: translateY(-1px);
         }
 
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* Main Content */
+        .editor-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: white;
+        }
+
+        .form-section {
+            padding: 32px;
+            border-right: 1px solid #f3f4f6;
+            overflow-y: auto;
+            max-height: 80vh;
+        }
+
+        .preview-section {
+            padding: 32px;
+            background: #fafafa;
+        }
+
         /* Section Editor */
+        .sections-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .sections-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
         .section-editor {
             background: white;
             border: 1px solid #e5e7eb;
@@ -183,6 +372,11 @@
             margin-bottom: 20px;
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s ease;
+        }
+
+        .section-editor:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
 
         .section-header {
@@ -193,6 +387,11 @@
             align-items: center;
             background: #fafafa;
             border-bottom: 1px solid #f3f4f6;
+            transition: all 0.2s ease;
+        }
+
+        .section-header:hover {
+            background: #f5f5f5;
         }
 
         .section-content {
@@ -207,13 +406,14 @@
             padding: 24px;
         }
 
-        /* Content Blocks */
+        /* Content Block */
         .content-block {
             background: #f9fafb;
             border: 1px solid #e5e7eb;
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 16px;
+            position: relative;
         }
 
         /* Rich Text Editor */
@@ -233,6 +433,26 @@
             flex-wrap: wrap;
         }
 
+        .toolbar-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .toolbar-btn:hover {
+            background: #e5e7eb;
+            transform: translateY(-1px);
+        }
+
         .editor-content-area {
             min-height: 150px;
             max-height: 400px;
@@ -245,6 +465,56 @@
         .editor-content-area:focus {
             outline: none;
             background: #fafafa;
+        }
+
+        /* Preview Container */
+        .preview-container {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e7eb;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-header {
+            padding: 16px 20px;
+            background: #fafafa;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .preview-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .preview-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .preview-dot:nth-child(1) { background: #ff5f57; }
+        .preview-dot:nth-child(2) { background: #ffbd2e; }
+        .preview-dot:nth-child(3) { background: #28ca42; }
+
+        .preview-url {
+            font-size: 14px;
+            color: #9ca3af;
+            margin-left: 8px;
+        }
+
+        .preview-iframe {
+            width: 100%;
+            flex: 1;
+            border: none;
+            background: white;
         }
 
         /* Toast Notifications */
@@ -275,37 +545,103 @@
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         }
 
-        /* Error Console (for debugging) */
-        .error-console {
-            position: fixed;
-            bottom: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.9);
-            color: #00ff00;
-            padding: 10px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 10px;
-            max-width: 300px;
-            max-height: 150px;
-            overflow-y: auto;
-            display: none;
-            z-index: 10000;
+        /* Footer */
+        .footer {
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            padding: 24px 16px;
+            text-align: center;
+            margin-top: 40px;
         }
 
-        .error-console.show {
-            display: block;
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            font-size: 14px;
+            color: #6b7280;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer a {
+            color: #16a34a;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .footer a:hover {
+            color: #15803d;
+            text-decoration: underline;
+        }
+
+        .pizza-button {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            color: white !important;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none !important;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+        }
+
+        .pizza-button:hover {
+            background: linear-gradient(135deg, #ea580c 0%, #dc2626 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
+            color: white !important;
         }
 
         /* Responsive Design */
         @media (max-width: 768px) {
+            .editor-header {
+                flex-direction: column;
+                gap: 16px;
+                padding: 16px;
+            }
+
+            .editor-actions {
+                width: 100%;
+                justify-content: center;
+            }
+
             .editor-content {
                 grid-template-columns: 1fr;
             }
-            
+
             .form-section {
                 border-right: none;
                 border-bottom: 1px solid #f3f4f6;
+            }
+
+            .upload-container {
+                padding: 16px;
+            }
+
+            .drop-zone {
+                padding: 40px 20px;
+            }
+
+            .upload-title {
+                font-size: 20px;
+            }
+
+            .form-section,
+            .preview-section {
+                padding: 20px;
+            }
+
+            .footer-content {
+                gap: 12px;
+            }
+
+            .pizza-button {
+                font-size: 12px;
+                padding: 6px 14px;
             }
         }
 
@@ -324,9 +660,6 @@
     <!-- SECTION 2: HTML STRUCTURE -->
     <!-- ============================================ -->
     
-    <!-- Error Console for Debugging -->
-    <div id="errorConsole" class="error-console"></div>
-    
     <!-- Toast Notifications -->
     <div id="toast" class="toast"></div>
     
@@ -334,27 +667,83 @@
     <div class="main-content">
         <!-- Upload Screen -->
         <div id="uploadScreen" class="screen active">
+            <div class="header-icons">
+                <button class="icon-button" title="Info">
+                    <span>ℹ️</span>
+                </button>
+                <button class="icon-button" title="Home">
+                    <span>🏠</span>
+                </button>
+            </div>
+
             <div style="max-width: 1200px; margin: 0 auto; padding: 40px 20px; text-align: center;">
                 <header style="margin-bottom: 40px;">
-                    <h1 style="font-size: 48px; font-weight: 700; color: #1a1a1a; margin-bottom: 16px;">
+                    <h1 style="font-size: 48px; font-weight: 700; color: #1a1a1a; margin-bottom: 16px; line-height: 1.1;">
                         Medical Poster Converter
                     </h1>
-                    <p style="font-size: 20px; color: #6b7280;">
-                        Transform your conference posters into beautiful websites
+                    <p style="font-size: 20px; color: #6b7280; max-width: 600px; margin: 0 auto;">
+                        Transform your conference posters into beautiful, responsive websites in minutes
                     </p>
                 </header>
 
                 <div class="upload-container">
                     <div id="dropZone" class="drop-zone">
-                        <input type="file" id="fileInput" accept=".pdf,.txt,.html,.png,.jpg,.jpeg">
-                        <h3 style="font-size: 24px; margin-bottom: 8px;">Drop your poster here</h3>
-                        <p style="color: #6b7280; margin-bottom: 24px;">or click to browse</p>
-                        <button type="button" class="btn btn-primary" id="browseBtn">Choose File</button>
+                        <input type="file" id="fileInput" accept=".pdf,.docx,.txt,.png,.jpg,.jpeg,.html,.htm">
+                        <div class="upload-icon">
+                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 15L12 3M12 3L16 7M12 3L8 7" stroke="url(#gradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M2 17L2 19C2 20.1046 2.89543 21 4 21L20 21C21.1046 21 22 20.1046 22 19L22 17" stroke="url(#gradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <defs>
+                                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#16a34a"/>
+                                        <stop offset="100%" stop-color="#15803d"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <h3 class="upload-title">Drop your poster here</h3>
+                        <p class="upload-subtitle">or click anywhere to browse your files</p>
+                        <button type="button" class="browse-button" id="browseBtn">Choose File</button>
                     </div>
-                    <div style="margin-top: 20px;">
-                        <button class="btn btn-secondary" onclick="App.createFromScratch()">
-                            Create From Scratch
-                        </button>
+                    <div class="upload-formats">
+                        Supports PDF, Word (DOCX), Text (TXT), Image, and HTML files
+                    </div>
+                    <button class="create-from-scratch" id="createFromScratchBtn">Create From Scratch</button>
+                </div>
+
+                <div style="margin-top: 80px;">
+                    <h2 style="font-size: 32px; font-weight: 700; color: #1a1a1a; margin-bottom: 40px; text-transform: uppercase; letter-spacing: 1px;">
+                        What You Get
+                    </h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; max-width: 1000px; margin: 0 auto;">
+                        <div style="text-align: center;">
+                            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; font-size: 24px; box-shadow: 0 8px 25px rgba(22, 163, 74, 0.25);">
+                                🤖
+                            </div>
+                            <h4 style="font-weight: 600; color: #1a1a1a; margin-bottom: 12px; font-size: 18px;">Smart Text Extraction</h4>
+                            <p style="font-size: 14px; color: #6b7280; line-height: 1.5;">Automatically extracts content from PDFs and organizes into sections</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; font-size: 24px; box-shadow: 0 8px 25px rgba(22, 163, 74, 0.25);">
+                                ✨
+                            </div>
+                            <h4 style="font-weight: 600; color: #1a1a1a; margin-bottom: 12px; font-size: 18px;">Advanced Content Editing</h4>
+                            <p style="font-size: 14px; color: #6b7280; line-height: 1.5;">Rich text formatting, images with captions, and HTML embedding</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; font-size: 24px; box-shadow: 0 8px 25px rgba(22, 163, 74, 0.25);">
+                                📱
+                            </div>
+                            <h4 style="font-weight: 600; color: #1a1a1a; margin-bottom: 12px; font-size: 18px;">Flexible Layouts</h4>
+                            <p style="font-size: 14px; color: #6b7280; line-height: 1.5;">Mix text and images freely with PDF download button</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; font-size: 24px; box-shadow: 0 8px 25px rgba(22, 163, 74, 0.25);">
+                                💾
+                            </div>
+                            <h4 style="font-weight: 600; color: #1a1a1a; margin-bottom: 12px; font-size: 18px;">Multiple Export Formats</h4>
+                            <p style="font-size: 14px; color: #6b7280; line-height: 1.5;">Export as HTML, React component, or Next.js page</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -362,204 +751,258 @@
 
         <!-- Loading Screen -->
         <div id="loadingScreen" class="screen loading-screen">
-            <div style="text-align: center; color: white;">
+            <div class="loading-container">
                 <div class="loading-spinner"></div>
-                <h2 style="font-size: 24px; margin-bottom: 12px;">Processing your poster</h2>
-                <p style="opacity: 0.9;">This may take a moment</p>
+                <h2 id="loadingTitle" class="loading-title">Processing your poster</h2>
+                <p id="loadingMessage" class="loading-message">This may take a moment</p>
             </div>
         </div>
 
         <!-- Editor Screen -->
         <div id="editorScreen" class="screen">
             <div class="editor-header">
-                <button class="btn btn-secondary" onclick="App.goBack()">
-                    ← New Poster
+                <button id="backButton" class="back-button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    New Poster
                 </button>
-                <div style="text-align: center; flex: 1;">
-                    <h1 style="font-size: 28px; font-weight: 600;">Poster Editor</h1>
-                    <p id="fileName" style="font-size: 14px; color: #6b7280;"></p>
+                <div class="editor-title">
+                    <h1>Poster Editor</h1>
+                    <p class="pdf-name" id="pdfName"></p>
                 </div>
-                <div style="display: flex; gap: 12px;">
-                    <button class="btn btn-secondary" onclick="App.preview()">Preview</button>
-                    <button class="btn btn-primary" onclick="App.export()">Export</button>
+                <div class="editor-actions">
+                    <button class="btn btn-secondary" id="previewBtn">
+                        👁 Preview
+                    </button>
+                    <button class="btn btn-primary" id="exportBtn">
+                        💾 Export
+                    </button>
                 </div>
             </div>
 
             <div class="editor-content">
                 <div class="form-section">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                        <h3 style="font-size: 18px; font-weight: 600;">Sections</h3>
-                        <button class="btn btn-secondary" onclick="App.addSection()">+ Add Section</button>
+                    <div class="sections-header">
+                        <h3 class="sections-title">📑 All Sections</h3>
+                        <button class="btn btn-secondary" id="addSectionBtn">+ Add Section</button>
                     </div>
                     <div id="sectionsContainer"></div>
                 </div>
 
                 <div class="preview-section">
-                    <div style="background: white; border-radius: 16px; padding: 20px; height: 100%;">
-                        <h3 style="margin-bottom: 16px;">Live Preview</h3>
-                        <iframe id="previewFrame" style="width: 100%; height: 600px; border: 1px solid #e5e7eb; border-radius: 8px;"></iframe>
+                    <div class="preview-container">
+                        <div class="preview-header">
+                            <div class="preview-dots">
+                                <div class="preview-dot"></div>
+                                <div class="preview-dot"></div>
+                                <div class="preview-dot"></div>
+                            </div>
+                            <div class="preview-url">your-poster-website.com</div>
+                        </div>
+                        <iframe class="preview-iframe" id="websitePreview"></iframe>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <footer class="footer">
+        <div class="footer-content">
+            <div>
+                Made with 🧡 by Jack
+            </div>
+            <a href="https://coff.ee/genuinejack" target="_blank" class="pizza-button">
+                🍕 Buy me some pizza
+            </a>
+        </div>
+    </footer>
+
     <!-- ============================================ -->
     <!-- SECTION 3: JAVASCRIPT APPLICATION -->
     <!-- ============================================ -->
     <script>
-        // ============================================
-        // MODULE 1: Configuration and State
-        // ============================================
-        const AppConfig = {
-            debug: true, // Set to false in production
-            version: '1.0.0',
-            maxFileSize: 10 * 1024 * 1024, // 10MB
-            supportedFormats: ['.pdf', '.txt', '.html', '.png', '.jpg', '.jpeg']
-        };
-
-        const AppState = {
-            currentScreen: 'upload',
-            project: {
-                title: 'Untitled Poster',
-                sections: [],
-                logoUrl: null,
-                pdfFile: null
-            },
-            isProcessing: false
-        };
-
-        // ============================================
-        // MODULE 2: Utility Functions
-        // ============================================
-        const Utils = {
-            // Logging utility
-            log: function(message, type = 'info') {
-                if (!AppConfig.debug) return;
-                
-                const console = document.getElementById('errorConsole');
-                if (console) {
-                    console.classList.add('show');
-                    const entry = document.createElement('div');
-                    entry.style.color = type === 'error' ? '#ff6b6b' : 
-                                       type === 'success' ? '#51cf66' : '#74c0fc';
-                    entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-                    console.appendChild(entry);
-                    console.scrollTop = console.scrollHeight;
+        // Global app object  
+        window.PosterApp = {
+            // State
+            state: {
+                currentScreen: 'upload',
+                project: {
+                    title: 'My Research Poster',
+                    sections: [],
+                    logoUrl: null,
+                    pdfFile: null
                 }
+            },
+
+            // Initialize
+            init: function() {
+                console.log('Initializing Poster App...');
+                try {
+                    this.setupEventListeners();
+                    console.log('App ready!');
+                } catch (error) {
+                    console.error('Initialization error:', error);
+                    alert('Error initializing app: ' + error.message);
+                }
+            },
+
+            // Setup event listeners
+            setupEventListeners: function() {
+                const app = this;
                 
-                if (type === 'error') {
-                    console.error(message);
+                // File upload elements
+                const dropZone = document.getElementById('dropZone');
+                const fileInput = document.getElementById('fileInput');
+                const browseBtn = document.getElementById('browseBtn');
+                const createBtn = document.getElementById('createFromScratchBtn');
+                const backBtn = document.getElementById('backButton');
+                const addSectionBtn = document.getElementById('addSectionBtn');
+                const previewBtn = document.getElementById('previewBtn');
+                const exportBtn = document.getElementById('exportBtn');
+
+                // File upload handlers
+                if (dropZone && fileInput && browseBtn) {
+                    console.log('Attaching file upload listeners');
+                    
+                    dropZone.addEventListener('click', function() {
+                        console.log('Drop zone clicked');
+                        fileInput.click();
+                    });
+
+                    browseBtn.addEventListener('click', function(e) {
+                        console.log('Browse button clicked');
+                        e.stopPropagation();
+                        fileInput.click();
+                    });
+
+                    fileInput.addEventListener('change', function(e) {
+                        console.log('File input changed');
+                        if (e.target.files[0]) {
+                            app.handleFile(e.target.files[0]);
+                        }
+                    });
+
+                    // Drag and drop
+                    dropZone.addEventListener('dragover', function(e) {
+                        e.preventDefault();
+                        dropZone.classList.add('drag-over');
+                    });
+
+                    dropZone.addEventListener('dragleave', function() {
+                        dropZone.classList.remove('drag-over');
+                    });
+
+                    dropZone.addEventListener('drop', function(e) {
+                        console.log('File dropped');
+                        e.preventDefault();
+                        dropZone.classList.remove('drag-over');
+                        if (e.dataTransfer.files[0]) {
+                            app.handleFile(e.dataTransfer.files[0]);
+                        }
+                    });
                 } else {
-                    console.log(message);
+                    console.error('File upload elements not found!', {
+                        dropZone: !!dropZone,
+                        fileInput: !!fileInput,
+                        browseBtn: !!browseBtn
+                    });
                 }
-            },
 
-            // Show toast notification
-            showToast: function(message, type = 'success') {
-                const toast = document.getElementById('toast');
-                if (!toast) return;
-                
-                toast.textContent = message;
-                toast.className = `toast show ${type}`;
-                
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                }, 3000);
-            },
-
-            // Generate unique ID
-            createUniqueId: function() {
-                return 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-            },
-
-            // Switch screens
-            switchScreen: function(screenName) {
-                Utils.log(`Switching to screen: ${screenName}`);
-                
-                document.querySelectorAll('.screen').forEach(screen => {
-                    screen.classList.remove('active');
-                });
-                
-                const targetScreen = document.getElementById(`${screenName}Screen`);
-                if (targetScreen) {
-                    targetScreen.classList.add('active');
-                    AppState.currentScreen = screenName;
+                // Create from scratch button
+                if (createBtn) {
+                    console.log('Attaching create from scratch listener');
+                    createBtn.addEventListener('click', function() {
+                        console.log('Create button clicked');
+                        app.createFromScratch();
+                    });
                 } else {
-                    Utils.log(`Screen not found: ${screenName}`, 'error');
+                    console.error('Create from scratch button not found!');
+                }
+
+                // Back button
+                if (backBtn) {
+                    backBtn.addEventListener('click', function() {
+                        if (confirm('Are you sure? All changes will be lost.')) {
+                            app.goBack();
+                        }
+                    });
+                }
+
+                // Add section button
+                if (addSectionBtn) {
+                    addSectionBtn.addEventListener('click', function() {
+                        app.addSection();
+                    });
+                }
+
+                // Preview button
+                if (previewBtn) {
+                    previewBtn.addEventListener('click', function() {
+                        app.showToast('Preview feature coming soon!', 'info');
+                    });
+                }
+
+                // Export button
+                if (exportBtn) {
+                    exportBtn.addEventListener('click', function() {
+                        app.showToast('Export feature coming soon!', 'info');
+                    });
                 }
             },
 
-            // Safe DOM element access
-            getElement: function(id) {
-                const element = document.getElementById(id);
-                if (!element) {
-                    Utils.log(`Element not found: ${id}`, 'error');
-                }
-                return element;
-            }
-        };
-
-        // ============================================
-        // MODULE 3: File Handling
-        // ============================================
-        const FileHandler = {
-            // Process uploaded file
+            // Handle file upload
             handleFile: function(file) {
+                console.log('Handling file:', file.name);
+                alert('File selected: ' + file.name); // Debug alert
+                
                 if (!file) {
-                    Utils.log('No file provided', 'error');
+                    this.showToast('No file selected', 'error');
                     return;
                 }
 
-                Utils.log(`Processing file: ${file.name} (${file.size} bytes)`);
-
-                // Check file size
-                if (file.size > AppConfig.maxFileSize) {
-                    Utils.showToast('File too large (max 10MB)', 'error');
-                    return;
-                }
-
-                // Get file extension
                 const extension = file.name.split('.').pop().toLowerCase();
-                Utils.log(`File extension: ${extension}`);
+                console.log('File extension:', extension);
 
                 // Show loading screen
-                Utils.switchScreen('loading');
+                this.switchScreen('loading');
 
-                // Process based on file type
+                // Process file based on type
                 setTimeout(() => {
                     try {
                         switch(extension) {
                             case 'pdf':
-                                FileHandler.processPDF(file);
+                                this.processPDF(file);
                                 break;
                             case 'txt':
-                                FileHandler.processText(file);
+                                this.processText(file);
                                 break;
                             case 'html':
                             case 'htm':
-                                FileHandler.processHTML(file);
+                                this.processHTML(file);
                                 break;
                             case 'png':
                             case 'jpg':
                             case 'jpeg':
-                                FileHandler.processImage(file);
+                                this.processImage(file);
                                 break;
                             default:
-                                Utils.showToast('Unsupported file format', 'error');
-                                Utils.switchScreen('upload');
+                                this.showToast('Unsupported file format', 'error');
+                                this.switchScreen('upload');
                         }
                     } catch (error) {
-                        Utils.log(`Error processing file: ${error.message}`, 'error');
-                        Utils.showToast('Failed to process file', 'error');
-                        Utils.switchScreen('upload');
+                        console.error('Error processing file:', error);
+                        alert('Error processing file: ' + error.message); // Debug alert
+                        this.showToast('Failed to process file', 'error');
+                        this.switchScreen('upload');
                     }
                 }, 500);
             },
 
-            // Process PDF file
+            // Process PDF
             processPDF: function(file) {
-                Utils.log('Processing PDF...');
+                console.log('Processing PDF...');
+                const app = this;
                 const reader = new FileReader();
                 
                 reader.onload = function(e) {
@@ -568,55 +1011,58 @@
                         const loadingTask = pdfjsLib.getDocument({data: typedArray});
                         
                         loadingTask.promise.then(function(pdf) {
-                            Utils.log(`PDF loaded: ${pdf.numPages} pages`);
+                            console.log('PDF loaded, pages:', pdf.numPages);
                             
-                            // Extract text from all pages
+                            let extractedText = '';
                             const promises = [];
+                            
                             for (let i = 1; i <= pdf.numPages; i++) {
                                 promises.push(
-                                    pdf.getPage(i).then(page => {
-                                        return page.getTextContent().then(textContent => {
-                                            return textContent.items
+                                    pdf.getPage(i).then(function(page) {
+                                        return page.getTextContent().then(function(textContent) {
+                                            const pageText = textContent.items
                                                 .map(item => item.str)
                                                 .filter(str => str.trim().length > 0)
                                                 .join(' ');
+                                            return pageText;
                                         });
                                     })
                                 );
                             }
                             
-                            Promise.all(promises).then(pageTexts => {
-                                const fullText = pageTexts.join('\n\n');
-                                Utils.log(`Extracted ${fullText.length} characters`);
+                            Promise.all(promises).then(function(pageTexts) {
+                                extractedText = pageTexts.join('\n\n');
+                                console.log('Text extracted:', extractedText.length, 'characters');
                                 
-                                // Create sections from text
-                                const sections = FileHandler.parseTextIntoSections(fullText, file.name);
-                                AppState.project.sections = sections;
-                                AppState.project.pdfFile = file;
+                                if (extractedText.trim().length === 0) {
+                                    app.showToast('No text found in PDF', 'error');
+                                    app.switchScreen('upload');
+                                    return;
+                                }
                                 
-                                // Show editor
-                                Editor.initialize(file.name);
-                            }).catch(error => {
-                                Utils.log(`PDF text extraction failed: ${error.message}`, 'error');
-                                Utils.showToast('Failed to extract text from PDF', 'error');
-                                Utils.switchScreen('upload');
+                                app.state.project.sections = app.parseTextIntoSections(extractedText, file.name);
+                                app.state.project.pdfFile = file;
+                                app.showEditor(file.name);
+                            }).catch(function(error) {
+                                console.error('Text extraction failed:', error);
+                                app.showToast('Failed to extract text from PDF', 'error');
+                                app.switchScreen('upload');
                             });
-                        }).catch(error => {
-                            Utils.log(`PDF loading failed: ${error.message}`, 'error');
-                            Utils.showToast('Failed to load PDF', 'error');
-                            Utils.switchScreen('upload');
+                        }).catch(function(error) {
+                            console.error('PDF loading failed:', error);
+                            app.showToast('Failed to load PDF', 'error');
+                            app.switchScreen('upload');
                         });
                     } catch (error) {
-                        Utils.log(`PDF processing error: ${error.message}`, 'error');
-                        Utils.showToast('Error processing PDF', 'error');
-                        Utils.switchScreen('upload');
+                        console.error('PDF processing error:', error);
+                        app.showToast('Error processing PDF', 'error');
+                        app.switchScreen('upload');
                     }
                 };
                 
                 reader.onerror = function() {
-                    Utils.log('File reading failed', 'error');
-                    Utils.showToast('Failed to read file', 'error');
-                    Utils.switchScreen('upload');
+                    app.showToast('Failed to read file', 'error');
+                    app.switchScreen('upload');
                 };
                 
                 reader.readAsArrayBuffer(file);
@@ -624,87 +1070,107 @@
 
             // Process text file
             processText: function(file) {
-                Utils.log('Processing text file...');
+                console.log('Processing text file...');
+                const app = this;
                 const reader = new FileReader();
                 
                 reader.onload = function(e) {
                     const text = e.target.result;
-                    Utils.log(`Text file loaded: ${text.length} characters`);
-                    
-                    const sections = FileHandler.parseTextIntoSections(text, file.name);
-                    AppState.project.sections = sections;
-                    Editor.initialize(file.name);
+                    console.log('Text loaded:', text.length, 'characters');
+                    app.state.project.sections = app.parseTextIntoSections(text, file.name);
+                    app.showEditor(file.name);
                 };
                 
                 reader.onerror = function() {
-                    Utils.showToast('Failed to read text file', 'error');
-                    Utils.switchScreen('upload');
+                    app.showToast('Failed to read text file', 'error');
+                    app.switchScreen('upload');
                 };
                 
                 reader.readAsText(file);
             },
 
-            // Process HTML file
+            // Process HTML
             processHTML: function(file) {
-                Utils.log('Processing HTML file...');
+                console.log('Processing HTML file...');
+                const app = this;
                 const reader = new FileReader();
                 
                 reader.onload = function(e) {
                     const html = e.target.result;
-                    Utils.log(`HTML file loaded: ${html.length} characters`);
+                    console.log('HTML loaded');
                     
-                    // For now, just create a single section with the HTML
-                    AppState.project.sections = [
+                    // Create a simple section with the HTML
+                    app.state.project.sections = [
                         {
-                            id: Utils.createUniqueId(),
-                            name: 'Imported Content',
+                            id: app.createUniqueId(),
+                            name: 'Header',
+                            isHeader: true,
                             content: [{
-                                id: Utils.createUniqueId(),
+                                id: app.createUniqueId(),
+                                type: 'text',
+                                value: '<h1>' + file.name + '</h1>'
+                            }]
+                        },
+                        {
+                            id: app.createUniqueId(),
+                            name: 'Content',
+                            content: [{
+                                id: app.createUniqueId(),
                                 type: 'text',
                                 value: html
                             }]
                         }
                     ];
                     
-                    Editor.initialize(file.name);
+                    app.showEditor(file.name);
                 };
                 
                 reader.onerror = function() {
-                    Utils.showToast('Failed to read HTML file', 'error');
-                    Utils.switchScreen('upload');
+                    app.showToast('Failed to read HTML file', 'error');
+                    app.switchScreen('upload');
                 };
                 
                 reader.readAsText(file);
             },
 
-            // Process image file
+            // Process image
             processImage: function(file) {
-                Utils.log('Processing image file...');
+                console.log('Processing image...');
+                const app = this;
                 const reader = new FileReader();
                 
                 reader.onload = function(e) {
-                    const dataUrl = e.target.result;
-                    Utils.log('Image file loaded');
+                    console.log('Image loaded');
                     
-                    AppState.project.sections = [
+                    app.state.project.sections = [
                         {
-                            id: Utils.createUniqueId(),
+                            id: app.createUniqueId(),
+                            name: 'Header',
+                            isHeader: true,
+                            content: [{
+                                id: app.createUniqueId(),
+                                type: 'text',
+                                value: '<h1>Image Poster</h1>'
+                            }]
+                        },
+                        {
+                            id: app.createUniqueId(),
                             name: 'Image',
                             content: [{
-                                id: Utils.createUniqueId(),
+                                id: app.createUniqueId(),
                                 type: 'image',
-                                url: dataUrl,
+                                url: e.target.result,
                                 caption: file.name
                             }]
                         }
                     ];
                     
-                    Editor.initialize(file.name);
+                    app.showEditor(file.name);
                 };
                 
                 reader.onerror = function() {
-                    Utils.showToast('Failed to read image file', 'error');
-                    Utils.switchScreen('upload');
+                    app.showToast('Failed to read image', 'error');
+                    app.switchScreen('upload');
                 };
                 
                 reader.readAsDataURL(file);
@@ -712,249 +1178,331 @@
 
             // Parse text into sections
             parseTextIntoSections: function(text, fileName) {
-                Utils.log('Parsing text into sections...');
-                
                 const sections = [];
                 const headings = ['abstract', 'introduction', 'background', 'methods', 'results', 'discussion', 'conclusion', 'references'];
                 
-                // Add header section
+                // Add header
                 sections.push({
-                    id: Utils.createUniqueId(),
+                    id: this.createUniqueId(),
                     name: 'Header',
                     isHeader: true,
                     content: [{
-                        id: Utils.createUniqueId(),
+                        id: this.createUniqueId(),
                         type: 'text',
-                        value: `<h1>${fileName}</h1><p>Authors and Affiliations</p>`
+                        value: '<h1>' + fileName + '</h1><p>Authors and Affiliations</p>'
                     }]
                 });
 
                 // Try to detect sections
-                const lines = text.split(/[\r\n]+/);
+                const lines = text.split(/[\r\n]+/).filter(line => line.trim());
                 let currentSection = null;
                 let currentContent = '';
 
                 for (const line of lines) {
                     const lowerLine = line.toLowerCase().trim();
-                    const matchedHeading = headings.find(h => lowerLine.startsWith(h));
+                    const matchedHeading = headings.find(h => lowerLine.startsWith(h) && line.length < 50);
                     
-                    if (matchedHeading && line.length < 50) {
-                        // Save previous section if exists
+                    if (matchedHeading) {
                         if (currentSection && currentContent.trim()) {
                             currentSection.content.push({
-                                id: Utils.createUniqueId(),
+                                id: this.createUniqueId(),
                                 type: 'text',
                                 value: currentContent.trim()
                             });
                         }
                         
-                        // Start new section
                         currentSection = {
-                            id: Utils.createUniqueId(),
+                            id: this.createUniqueId(),
                             name: matchedHeading.charAt(0).toUpperCase() + matchedHeading.slice(1),
                             content: []
                         };
                         sections.push(currentSection);
                         currentContent = '';
                     } else if (currentSection) {
-                        currentContent += `<p>${line}</p>`;
+                        currentContent += '<p>' + line + '</p>';
                     }
                 }
 
-                // Save last section
                 if (currentSection && currentContent.trim()) {
                     currentSection.content.push({
-                        id: Utils.createUniqueId(),
+                        id: this.createUniqueId(),
                         type: 'text',
                         value: currentContent.trim()
                     });
                 }
 
-                // If no sections detected, create a default one
+                // If no sections found, create default
                 if (sections.length === 1) {
                     sections.push({
-                        id: Utils.createUniqueId(),
+                        id: this.createUniqueId(),
                         name: 'Content',
                         content: [{
-                            id: Utils.createUniqueId(),
+                            id: this.createUniqueId(),
                             type: 'text',
-                            value: text
+                            value: '<p>' + text + '</p>'
                         }]
                     });
                 }
 
-                Utils.log(`Created ${sections.length} sections`);
                 return sections;
-            }
-        };
+            },
 
-        // ============================================
-        // MODULE 4: Editor Functions
-        // ============================================
-        const Editor = {
-            // Initialize editor
-            initialize: function(fileName) {
-                Utils.log('Initializing editor...');
+            // Create from scratch
+            createFromScratch: function() {
+                console.log('Creating from scratch...');
+                alert('Create from scratch clicked!'); // Debug alert
                 
-                // Update filename display
-                const fileNameEl = Utils.getElement('fileName');
-                if (fileNameEl) {
-                    fileNameEl.textContent = fileName;
+                try {
+                    // Reset project
+                    this.state.project = {
+                        title: 'My Research Poster',
+                        sections: [],
+                        logoUrl: null,
+                        pdfFile: null
+                    };
+
+                    // Create default sections
+                    this.state.project.sections = [
+                        {
+                            id: this.createUniqueId(),
+                            name: 'Header',
+                            isHeader: true,
+                            content: [{
+                                id: this.createUniqueId(),
+                                type: 'text',
+                                value: '<h1>Untitled Poster</h1><p>Authors and Affiliations</p>'
+                            }]
+                        },
+                        {
+                            id: this.createUniqueId(),
+                            name: 'Introduction',
+                            content: [{
+                                id: this.createUniqueId(),
+                                type: 'text',
+                                value: 'Start typing your introduction here...'
+                            }]
+                        }
+                    ];
+
+                    // Show loading briefly
+                    this.switchScreen('loading');
+                    
+                    setTimeout(() => {
+                        this.showEditor('Untitled Poster');
+                    }, 500);
+                } catch (error) {
+                    console.error('Error in createFromScratch:', error);
+                    alert('Error: ' + error.message);
+                }
+            },
+
+            // Show editor
+            showEditor: function(fileName) {
+                console.log('Showing editor for:', fileName);
+                
+                // Update filename
+                const pdfName = document.getElementById('pdfName');
+                if (pdfName) {
+                    pdfName.textContent = fileName;
                 }
                 
                 // Render sections
-                Editor.renderSections();
+                this.renderSections();
                 
                 // Update preview
-                Editor.updatePreview();
+                this.updatePreview();
                 
-                // Switch to editor screen
-                Utils.switchScreen('editor');
-                Utils.showToast('File loaded successfully!', 'success');
+                // Switch screen
+                this.switchScreen('editor');
+                this.showToast('File loaded successfully!', 'success');
             },
 
-            // Render sections in editor
+            // Render sections
             renderSections: function() {
-                const container = Utils.getElement('sectionsContainer');
+                const container = document.getElementById('sectionsContainer');
                 if (!container) return;
                 
                 container.innerHTML = '';
                 
-                AppState.project.sections.forEach((section, index) => {
-                    const sectionEl = Editor.createSectionElement(section, index);
-                    container.appendChild(sectionEl);
+                this.state.project.sections.forEach((section, index) => {
+                    const sectionHtml = this.createSectionHTML(section, index);
+                    container.innerHTML += sectionHtml;
+                });
+                
+                // Re-attach section event handlers
+                this.attachSectionHandlers();
+            },
+
+            // Create section HTML
+            createSectionHTML: function(section, index) {
+                let contentHtml = '';
+                section.content.forEach((content, contentIndex) => {
+                    if (content.type === 'text') {
+                        contentHtml += `
+                            <div class="content-block">
+                                <div class="rich-editor">
+                                    <div class="editor-toolbar">
+                                        <button class="toolbar-btn" data-section="${index}" data-content="${contentIndex}" data-command="bold"><b>B</b></button>
+                                        <button class="toolbar-btn" data-section="${index}" data-content="${contentIndex}" data-command="italic"><i>I</i></button>
+                                        <button class="toolbar-btn" data-section="${index}" data-content="${contentIndex}" data-command="underline"><u>U</u></button>
+                                    </div>
+                                    <div class="editor-content-area" 
+                                         contenteditable="true"
+                                         id="editor-${index}-${contentIndex}"
+                                         data-section="${index}"
+                                         data-content="${contentIndex}">
+                                        ${content.value}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else if (content.type === 'image') {
+                        contentHtml += `
+                            <div class="content-block">
+                                ${content.url ? 
+                                    `<img src="${content.url}" style="max-width: 100%; border-radius: 8px;">` :
+                                    `<p>No image</p>`
+                                }
+                                <input type="text" 
+                                       value="${content.caption || ''}" 
+                                       placeholder="Caption"
+                                       data-section="${index}"
+                                       data-content="${contentIndex}"
+                                       class="image-caption"
+                                       style="width: 100%; padding: 8px; margin-top: 8px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                            </div>
+                        `;
+                    }
+                });
+                
+                return `
+                    <div class="section-editor">
+                        <div class="section-header" data-section-id="${section.id}">
+                            <span>${section.name}</span>
+                            <button class="btn btn-small btn-secondary" data-delete-section="${index}">Delete</button>
+                        </div>
+                        <div class="section-content" id="section-${section.id}">
+                            <input type="text" 
+                                   value="${section.name}" 
+                                   data-section-name="${index}"
+                                   style="width: 100%; padding: 8px; margin-bottom: 16px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                            ${contentHtml}
+                            <button class="btn btn-secondary" data-add-content="${index}">+ Add Content</button>
+                        </div>
+                    </div>
+                `;
+            },
+
+            // Attach section event handlers
+            attachSectionHandlers: function() {
+                const app = this;
+                
+                // Section headers (toggle)
+                document.querySelectorAll('.section-header').forEach(header => {
+                    header.addEventListener('click', function(e) {
+                        if (!e.target.closest('button')) {
+                            const sectionId = this.dataset.sectionId;
+                            const content = document.getElementById('section-' + sectionId);
+                            if (content) {
+                                content.classList.toggle('expanded');
+                            }
+                        }
+                    });
+                });
+
+                // Delete section buttons
+                document.querySelectorAll('[data-delete-section]').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const index = parseInt(this.dataset.deleteSection);
+                        if (confirm('Delete this section?')) {
+                            app.state.project.sections.splice(index, 1);
+                            app.renderSections();
+                            app.updatePreview();
+                        }
+                    });
+                });
+
+                // Add content buttons
+                document.querySelectorAll('[data-add-content]').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.dataset.addContent);
+                        app.state.project.sections[index].content.push({
+                            id: app.createUniqueId(),
+                            type: 'text',
+                            value: 'New content...'
+                        });
+                        app.renderSections();
+                        app.updatePreview();
+                    });
+                });
+
+                // Section name inputs
+                document.querySelectorAll('[data-section-name]').forEach(input => {
+                    input.addEventListener('change', function() {
+                        const index = parseInt(this.dataset.sectionName);
+                        app.state.project.sections[index].name = this.value;
+                        app.updatePreview();
+                    });
+                });
+
+                // Content editors
+                document.querySelectorAll('.editor-content-area').forEach(editor => {
+                    editor.addEventListener('blur', function() {
+                        const sectionIndex = parseInt(this.dataset.section);
+                        const contentIndex = parseInt(this.dataset.content);
+                        app.state.project.sections[sectionIndex].content[contentIndex].value = this.innerHTML;
+                        app.updatePreview();
+                    });
+                });
+
+                // Toolbar buttons
+                document.querySelectorAll('.toolbar-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const sectionIndex = parseInt(this.dataset.section);
+                        const contentIndex = parseInt(this.dataset.content);
+                        const command = this.dataset.command;
+                        const editor = document.getElementById(`editor-${sectionIndex}-${contentIndex}`);
+                        if (editor) {
+                            editor.focus();
+                            document.execCommand(command, false, null);
+                            app.state.project.sections[sectionIndex].content[contentIndex].value = editor.innerHTML;
+                            app.updatePreview();
+                        }
+                    });
+                });
+
+                // Image captions
+                document.querySelectorAll('.image-caption').forEach(input => {
+                    input.addEventListener('change', function() {
+                        const sectionIndex = parseInt(this.dataset.section);
+                        const contentIndex = parseInt(this.dataset.content);
+                        app.state.project.sections[sectionIndex].content[contentIndex].caption = this.value;
+                        app.updatePreview();
+                    });
                 });
             },
 
-            // Create section element
-            createSectionElement: function(section, index) {
-                const div = document.createElement('div');
-                div.className = 'section-editor';
-                div.innerHTML = `
-                    <div class="section-header" onclick="Editor.toggleSection('${section.id}')">
-                        <span>${section.name}</span>
-                        <div>
-                            <button class="btn btn-secondary" onclick="event.stopPropagation(); Editor.deleteSection(${index})">Delete</button>
-                        </div>
-                    </div>
-                    <div class="section-content" id="section-${section.id}">
-                        <input type="text" 
-                               value="${section.name}" 
-                               onchange="Editor.updateSectionName(${index}, this.value)"
-                               style="width: 100%; padding: 8px; margin-bottom: 16px; border: 1px solid #e5e7eb; border-radius: 8px;">
-                        
-                        <div id="content-${section.id}">
-                            ${section.content.map((content, contentIndex) => 
-                                Editor.createContentBlock(content, index, contentIndex)
-                            ).join('')}
-                        </div>
-                        
-                        <button class="btn btn-secondary" onclick="Editor.addContent(${index})">
-                            + Add Content
-                        </button>
-                    </div>
-                `;
-                return div;
-            },
-
-            // Create content block HTML
-            createContentBlock: function(content, sectionIndex, contentIndex) {
-                if (content.type === 'text') {
-                    return `
-                        <div class="content-block">
-                            <div class="rich-editor">
-                                <div class="editor-toolbar">
-                                    <button onclick="Editor.formatText('bold', ${sectionIndex}, ${contentIndex})">B</button>
-                                    <button onclick="Editor.formatText('italic', ${sectionIndex}, ${contentIndex})">I</button>
-                                    <button onclick="Editor.formatText('underline', ${sectionIndex}, ${contentIndex})">U</button>
-                                </div>
-                                <div class="editor-content-area" 
-                                     contenteditable="true"
-                                     id="editor-${sectionIndex}-${contentIndex}"
-                                     onblur="Editor.updateContent(${sectionIndex}, ${contentIndex}, this.innerHTML)">
-                                    ${content.value}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                } else if (content.type === 'image') {
-                    return `
-                        <div class="content-block">
-                            ${content.url ? 
-                                `<img src="${content.url}" style="max-width: 100%; height: auto;">` :
-                                `<p>No image uploaded</p>`
-                            }
-                            <input type="text" 
-                                   value="${content.caption || ''}" 
-                                   placeholder="Image caption"
-                                   onchange="Editor.updateContent(${sectionIndex}, ${contentIndex}, this.value, 'caption')"
-                                   style="width: 100%; padding: 8px; margin-top: 8px; border: 1px solid #e5e7eb; border-radius: 8px;">
-                        </div>
-                    `;
-                }
-                return '';
-            },
-
-            // Toggle section visibility
-            toggleSection: function(sectionId) {
-                const content = document.getElementById(`section-${sectionId}`);
-                if (content) {
-                    content.classList.toggle('expanded');
-                }
-            },
-
-            // Update section name
-            updateSectionName: function(index, name) {
-                if (AppState.project.sections[index]) {
-                    AppState.project.sections[index].name = name;
-                    Editor.updatePreview();
-                }
-            },
-
-            // Update content
-            updateContent: function(sectionIndex, contentIndex, value, field = 'value') {
-                if (AppState.project.sections[sectionIndex] && 
-                    AppState.project.sections[sectionIndex].content[contentIndex]) {
-                    AppState.project.sections[sectionIndex].content[contentIndex][field] = value;
-                    Editor.updatePreview();
-                }
-            },
-
-            // Format text
-            formatText: function(command, sectionIndex, contentIndex) {
-                const editor = document.getElementById(`editor-${sectionIndex}-${contentIndex}`);
-                if (editor) {
-                    editor.focus();
-                    document.execCommand(command, false, null);
-                    Editor.updateContent(sectionIndex, contentIndex, editor.innerHTML);
-                }
-            },
-
-            // Add content to section
-            addContent: function(sectionIndex) {
-                if (AppState.project.sections[sectionIndex]) {
-                    AppState.project.sections[sectionIndex].content.push({
-                        id: Utils.createUniqueId(),
+            // Add section
+            addSection: function() {
+                this.state.project.sections.push({
+                    id: this.createUniqueId(),
+                    name: 'New Section',
+                    content: [{
+                        id: this.createUniqueId(),
                         type: 'text',
-                        value: 'New content...'
-                    });
-                    Editor.renderSections();
-                    Editor.updatePreview();
-                }
-            },
-
-            // Delete section
-            deleteSection: function(index) {
-                if (confirm('Delete this section?')) {
-                    AppState.project.sections.splice(index, 1);
-                    Editor.renderSections();
-                    Editor.updatePreview();
-                }
+                        value: 'Section content...'
+                    }]
+                });
+                
+                this.renderSections();
+                this.updatePreview();
+                this.showToast('Section added', 'success');
             },
 
             // Update preview
             updatePreview: function() {
-                const preview = Utils.getElement('previewFrame');
+                const preview = document.getElementById('websitePreview');
                 if (!preview) return;
                 
                 const html = `
@@ -962,196 +1510,132 @@
                     <html>
                     <head>
                         <style>
-                            body { font-family: sans-serif; padding: 20px; }
-                            .section { margin-bottom: 30px; }
-                            h2 { color: #333; }
+                            body { 
+                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+                                padding: 20px;
+                                background: #f8fafc;
+                                margin: 0;
+                            }
+                            .container {
+                                max-width: 800px;
+                                margin: 0 auto;
+                            }
+                            .section { 
+                                background: white;
+                                padding: 30px;
+                                margin-bottom: 20px;
+                                border-radius: 12px;
+                                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                            }
+                            .header {
+                                background: linear-gradient(135deg, #16a34a, #15803d);
+                                color: white;
+                                padding: 40px;
+                                border-radius: 12px;
+                                margin-bottom: 30px;
+                                text-align: center;
+                            }
+                            h1 { margin: 0 0 10px 0; }
+                            h2 { color: #16a34a; margin-top: 0; }
+                            img { max-width: 100%; height: auto; border-radius: 8px; }
+                            .caption { font-style: italic; color: #666; margin-top: 8px; }
                         </style>
                     </head>
                     <body>
-                        ${AppState.project.sections.map(section => `
-                            <div class="section">
-                                <h2>${section.name}</h2>
-                                ${section.content.map(content => {
-                                    if (content.type === 'text') {
-                                        return `<div>${content.value}</div>`;
-                                    } else if (content.type === 'image') {
-                                        return `
-                                            <div>
-                                                ${content.url ? `<img src="${content.url}" style="max-width: 100%;">` : ''}
-                                                ${content.caption ? `<p>${content.caption}</p>` : ''}
-                                            </div>
-                                        `;
-                                    }
-                                    return '';
-                                }).join('')}
-                            </div>
-                        `).join('')}
+                        <div class="container">
+                            ${this.state.project.sections.map(section => {
+                                if (section.isHeader) {
+                                    return `
+                                        <div class="header">
+                                            ${section.content.map(c => c.type === 'text' ? c.value : '').join('')}
+                                        </div>
+                                    `;
+                                } else {
+                                    return `
+                                        <div class="section">
+                                            <h2>${section.name}</h2>
+                                            ${section.content.map(c => {
+                                                if (c.type === 'text') {
+                                                    return c.value;
+                                                } else if (c.type === 'image' && c.url) {
+                                                    return `
+                                                        <div>
+                                                            <img src="${c.url}">
+                                                            ${c.caption ? `<p class="caption">${c.caption}</p>` : ''}
+                                                        </div>
+                                                    `;
+                                                }
+                                                return '';
+                                            }).join('')}
+                                        </div>
+                                    `;
+                                }
+                            }).join('')}
+                        </div>
                     </body>
                     </html>
                 `;
                 
                 preview.srcdoc = html;
-            }
-        };
-
-        // ============================================
-        // MODULE 5: Main Application
-        // ============================================
-        const App = {
-            // Initialize application
-            init: function() {
-                Utils.log('Initializing application...', 'success');
-                
-                // Set up event listeners
-                App.setupEventListeners();
-                
-                // Initialize with empty project
-                App.resetProject();
-                
-                Utils.log('Application ready', 'success');
             },
 
-            // Set up event listeners
-            setupEventListeners: function() {
-                // File upload
-                const dropZone = Utils.getElement('dropZone');
-                const fileInput = Utils.getElement('fileInput');
-                const browseBtn = Utils.getElement('browseBtn');
-                
-                if (dropZone && fileInput && browseBtn) {
-                    // Click to upload
-                    dropZone.addEventListener('click', () => fileInput.click());
-                    browseBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        fileInput.click();
-                    });
-                    
-                    // File selection
-                    fileInput.addEventListener('change', (e) => {
-                        if (e.target.files[0]) {
-                            FileHandler.handleFile(e.target.files[0]);
-                        }
-                    });
-                    
-                    // Drag and drop
-                    dropZone.addEventListener('dragover', (e) => {
-                        e.preventDefault();
-                        dropZone.classList.add('drag-over');
-                    });
-                    
-                    dropZone.addEventListener('dragleave', () => {
-                        dropZone.classList.remove('drag-over');
-                    });
-                    
-                    dropZone.addEventListener('drop', (e) => {
-                        e.preventDefault();
-                        dropZone.classList.remove('drag-over');
-                        if (e.dataTransfer.files[0]) {
-                            FileHandler.handleFile(e.dataTransfer.files[0]);
-                        }
-                    });
-                    
-                    Utils.log('Event listeners attached');
-                } else {
-                    Utils.log('Failed to attach event listeners - elements not found', 'error');
-                }
-                
-                // Global error handler
-                window.addEventListener('error', (e) => {
-                    Utils.log(`Global error: ${e.message} at ${e.filename}:${e.lineno}`, 'error');
-                });
-            },
-
-            // Reset project
-            resetProject: function() {
-                AppState.project = {
-                    title: 'Untitled Poster',
+            // Go back
+            goBack: function() {
+                this.state.project = {
+                    title: 'My Research Poster',
                     sections: [],
                     logoUrl: null,
                     pdfFile: null
                 };
+                this.switchScreen('upload');
             },
 
-            // Create from scratch
-            createFromScratch: function() {
-                Utils.log('Creating new project from scratch');
-                
-                App.resetProject();
-                
-                // Create default sections
-                AppState.project.sections = [
-                    {
-                        id: Utils.createUniqueId(),
-                        name: 'Header',
-                        isHeader: true,
-                        content: [{
-                            id: Utils.createUniqueId(),
-                            type: 'text',
-                            value: '<h1>New Poster</h1><p>Add your content here</p>'
-                        }]
-                    },
-                    {
-                        id: Utils.createUniqueId(),
-                        name: 'Introduction',
-                        content: [{
-                            id: Utils.createUniqueId(),
-                            type: 'text',
-                            value: 'Start typing your introduction...'
-                        }]
-                    }
-                ];
-                
-                // Show loading briefly
-                Utils.switchScreen('loading');
-                
-                setTimeout(() => {
-                    Editor.initialize('New Poster');
-                }, 500);
-            },
-
-            // Go back to upload screen
-            goBack: function() {
-                if (confirm('Are you sure? All changes will be lost.')) {
-                    App.resetProject();
-                    Utils.switchScreen('upload');
+            // Utility functions
+            switchScreen: function(screenName) {
+                console.log('Switching to screen:', screenName);
+                document.querySelectorAll('.screen').forEach(screen => {
+                    screen.classList.remove('active');
+                });
+                const targetScreen = document.getElementById(screenName + 'Screen');
+                if (targetScreen) {
+                    targetScreen.classList.add('active');
+                    this.state.currentScreen = screenName;
                 }
             },
 
-            // Add new section
-            addSection: function() {
-                AppState.project.sections.push({
-                    id: Utils.createUniqueId(),
-                    name: 'New Section',
-                    content: [{
-                        id: Utils.createUniqueId(),
-                        type: 'text',
-                        value: 'Section content...'
-                    }]
-                });
-                
-                Editor.renderSections();
-                Editor.updatePreview();
-                Utils.showToast('Section added', 'success');
+            showToast: function(message, type = 'success') {
+                const toast = document.getElementById('toast');
+                if (toast) {
+                    toast.textContent = message;
+                    toast.className = 'toast show ' + type;
+                    setTimeout(() => {
+                        toast.classList.remove('show');
+                    }, 3000);
+                }
             },
 
-            // Preview poster
-            preview: function() {
-                Utils.showToast('Preview feature coming soon!', 'info');
-            },
-
-            // Export poster
-            export: function() {
-                Utils.showToast('Export feature coming soon!', 'info');
+            createUniqueId: function() {
+                return 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
             }
         };
 
-        // ============================================
+        // Global error handler
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            console.error('Global error:', msg, 'at', url, lineNo + ':' + columnNo);
+            console.error('Error object:', error);
+            return false;
+        };
+
         // Initialize when DOM is ready
-        // ============================================
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', App.init);
+            console.log('Waiting for DOM to load...');
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('DOM loaded, initializing app');
+                window.PosterApp.init();
+            });
         } else {
-            App.init();
+            console.log('DOM already loaded, initializing app immediately');
+            window.PosterApp.init();
         }
     </script>
 </body>
